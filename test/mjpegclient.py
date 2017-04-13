@@ -1,15 +1,21 @@
-'''
+"""
 Created on Apr 12, 2017
 
 @author: sgoldsmith
-'''
-import unittest, sys, logging, codeferm.config
+
+Copyright (c) Steven P. Goldsmith
+
+All rights reserved.
+"""
+
+import unittest, sys, logging, codeferm.config, codeferm.mjpegclient
 
 
 class mjpegclient(unittest.TestCase):
 
 
     def setUp(self):
+        # sys.argv[6] is configuration file or default is used
         if len(sys.argv) < 7:
             fileName = "../config/test.ini"
         else:
@@ -26,14 +32,19 @@ class mjpegclient(unittest.TestCase):
         self.logger.info("Configuring from file: %s" % fileName)
         self.logger.info("Logging level: %s" % self.appConfig.loggingLevel)
         self.logger.debug("Logging formatter: %s" % self.appConfig.loggingFormatter)
+        self.client = codeferm.mjpegclient.mjpegclient(self.appConfig.url)
 
     def tearDown(self):
-        pass
+        self.logger.debug("tearDown")
+        self.client.close()
 
 
-    def testName(self):
-        pass
-
-
+    def testGetFrames(self):
+        self.logger.debug("testGetFrames")
+        jpeg, image = self.client.getFrame()
+        # Make sure we have image data
+        self.assertFalse(image.size == 0, "Image cannot be size 0")
+        frameHeight, frameWidth, channels = image.shape
+        self.logger.debug("Height: %d, width: %d, channels: %d" % (frameHeight, frameWidth, channels))
 if __name__ == "__main__":
     unittest.main(argv=[sys.argv[0]])
