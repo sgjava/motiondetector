@@ -8,9 +8,9 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import re, cv2
+import re, cv2, framebase
 
-class videocapture(object):
+class videocapture(framebase.framebase):
     """cv2.VideoCapture based frame grabber.
     
     It's probably a good idea to start with this plugin as default since it's
@@ -40,6 +40,10 @@ class videocapture(object):
         # error which can usually be ignored. On some cameras VideoCapture just
         # dies without error. In that case try one of the other plugins.
         s, image = self.capture.read()
+        return image
+   
+    def decodeFrame(self, image):
+        # cv2.VideoCapture will not return a raw image, so we just return the decoded image passed
         return image
    
     def close(self):

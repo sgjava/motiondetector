@@ -8,15 +8,17 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import socket, urlparse, base64, numpy, cv2
+import socket, urlparse, base64, numpy, cv2, framebase
 
-class mjpegclient(object):
+class mjpegclient(framebase.framebase):
     """MJPEG frame grabber class.
     
     Used for socket based frame grabber.
 
     """
+    
     def __init__(self, url):
+        """Connect to stream"""
         # Parse URL
         parsed = urlparse.urlparse(url)
         port = parsed.port
@@ -80,14 +82,13 @@ class mjpegclient(object):
             self.line = self.socketFile.readline()
         return length
     
-    def getFrameRaw(self):
+    def getFrame(self):
         """Get raw frame data from stream"""
         return self.socketFile.read(self.getFrameLength())
     
-    def getFrame(self):
-        """Get raw frame data from stream and decode"""
-        jpeg = self.getFrameRaw()
-        return jpeg, cv2.imdecode(numpy.fromstring(jpeg, numpy.uint8), cv2.IMREAD_COLOR)    
+    def decodeFrame(self, image):
+        """ Convert raw image format to something OpenCV understands """
+        return cv2.imdecode(numpy.fromstring(image, numpy.uint8), cv2.IMREAD_COLOR)    
    
     def close(self):
         """Clean up resources"""

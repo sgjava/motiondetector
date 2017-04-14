@@ -11,7 +11,7 @@ All rights reserved.
 import unittest, sys, logging, codeferm.config, codeferm.videocapture
 
 
-class videocapture(unittest.TestCase):
+class mjpegclient(unittest.TestCase):
 
 
     def setUp(self):
@@ -23,7 +23,7 @@ class videocapture(unittest.TestCase):
         print "fileName: %s" % fileName      
         self.appConfig = codeferm.config.config(fileName)
         # Set up logger
-        self.logger = logging.getLogger("videocapture")
+        self.logger = logging.getLogger("mjpegclient")
         self.logger.setLevel(self.appConfig.loggingLevel)
         formatter = logging.Formatter(self.appConfig.loggingFormatter)
         handler = logging.StreamHandler(sys.stdout)
@@ -38,13 +38,14 @@ class videocapture(unittest.TestCase):
         self.logger.debug("tearDown")
         self.client.close()
 
-
-    def testGetFrames(self):
-        self.logger.debug("testGetFrames")
-        image = self.client.getFrame()
+    def testDecode(self):
+        self.logger.debug("testDecode")
+        frame = self.client.getFrame()
+        image = self.client.decodeFrame(frame)
         # Make sure we have image data
         self.assertFalse(image.size == 0, "Image cannot be size 0")
         frameHeight, frameWidth, channels = image.shape
         self.logger.debug("Height: %d, width: %d, channels: %d" % (frameHeight, frameWidth, channels))
+        
 if __name__ == "__main__":
     unittest.main(argv=[sys.argv[0]])

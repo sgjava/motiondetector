@@ -38,13 +38,17 @@ class mjpegclient(unittest.TestCase):
         self.logger.debug("tearDown")
         self.client.close()
 
-
-    def testGetFrames(self):
-        self.logger.debug("testGetFrames")
-        jpeg, image = self.client.getFrame()
+    def testDecode(self):
+        self.logger.debug("testDecode")
+        frame = self.client.getFrame()
+        # Make sure we have image data
+        self.assertTrue(frame, "Frame cannot be empty")
+        self.logger.debug("Frame size: %d" % len(frame))        
+        image = self.client.decodeFrame(frame)
         # Make sure we have image data
         self.assertFalse(image.size == 0, "Image cannot be size 0")
         frameHeight, frameWidth, channels = image.shape
         self.logger.debug("Height: %d, width: %d, channels: %d" % (frameHeight, frameWidth, channels))
+        
 if __name__ == "__main__":
     unittest.main(argv=[sys.argv[0]])
