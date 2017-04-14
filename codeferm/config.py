@@ -8,7 +8,7 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import ConfigParser
+import ConfigParser, cv2
 
 class config(object):
     '''
@@ -25,7 +25,9 @@ class config(object):
         self.loggingLevel = parser.get("logging", "level")
         self.loggingFormatter = parser.get("logging", "formatter") 
         # Set camera related data attributes
-        self.cameraName = parser.get("camera", "name")    
+        self.cameraName = parser.get("camera", "name")
+        self.framePlugin = parser.get("camera", "framePlugin")
+        self.videoCaptureProperties = eval(parser.get("camera", "videoCaptureProperties"))        
         self.url = parser.get("camera", "url")
         self.socketTimeout = parser.getint("camera", "socketTimeout")
         self.resizeWidthDiv = parser.getint("camera", "resizeWidthDiv")

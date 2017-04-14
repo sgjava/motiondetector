@@ -20,7 +20,6 @@ class mjpegclient(unittest.TestCase):
             fileName = "../config/test.ini"
         else:
             fileName = sys.argv[6]
-        print "fileName: %s" % fileName      
         self.appConfig = codeferm.config.config(fileName)
         # Set up logger
         self.logger = logging.getLogger("mjpegclient")
