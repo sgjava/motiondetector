@@ -66,6 +66,11 @@ class mjpegclient(framebase.framebase):
         # See if we found "content-type"
         if not self.boundary:
             raise Exception("Cannot find content-type")
+        # Set basic params
+        frame = self.getFrame()
+        image = self.decodeFrame(frame)
+        self.frameHeight, self.frameWidth, channels = image.shape
+        self.fps = 0
         
     def getFrameLength(self):
         """Get frame length from stream"""

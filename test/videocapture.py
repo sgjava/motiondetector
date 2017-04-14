@@ -44,8 +44,7 @@ class mjpegclient(unittest.TestCase):
         image = self.client.decodeFrame(frame)
         # Make sure we have image data
         self.assertFalse(image.size == 0, "Image cannot be size 0")
-        frameHeight, frameWidth, channels = image.shape
-        self.logger.debug("Height: %d, width: %d, channels: %d" % (frameHeight, frameWidth, channels))
+        self.logger.debug("Height: %d, width: %d, fps: %d" % (self.client.frameHeight, self.client.frameWidth, self.client.fps))
         
 if __name__ == "__main__":
     unittest.main(argv=[sys.argv[0]])

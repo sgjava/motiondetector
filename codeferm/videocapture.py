@@ -28,6 +28,9 @@ class videocapture(framebase.framebase):
             self.capture = cv2.VideoCapture(int(url))
         else:
             self.capture = cv2.VideoCapture(url)
+        self.frameHeight = int(self.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.frameWidth = int(self.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.fps = int(self.capture.get(cv2.CAP_PROP_FPS))
         
     def setProperties(self, properties):
         """ Set VideoCapture properties """
