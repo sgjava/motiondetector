@@ -8,10 +8,10 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import unittest, sys, logging, codeferm.config, codeferm.mjpegclient
+import unittest, sys, logging, codeferm.config, codeferm.videocapture
 
 
-class mjpegclient(unittest.TestCase):
+class videocapture(unittest.TestCase):
 
 
     def setUp(self):
@@ -23,7 +23,7 @@ class mjpegclient(unittest.TestCase):
         print "fileName: %s" % fileName      
         self.appConfig = codeferm.config.config(fileName)
         # Set up logger
-        self.logger = logging.getLogger("mjpegclient")
+        self.logger = logging.getLogger("videocapture")
         self.logger.setLevel(self.appConfig.loggingLevel)
         formatter = logging.Formatter(self.appConfig.loggingFormatter)
         handler = logging.StreamHandler(sys.stdout)
@@ -32,7 +32,7 @@ class mjpegclient(unittest.TestCase):
         self.logger.info("Configuring from file: %s" % fileName)
         self.logger.info("Logging level: %s" % self.appConfig.loggingLevel)
         self.logger.debug("Logging formatter: %s" % self.appConfig.loggingFormatter)
-        self.client = codeferm.mjpegclient.mjpegclient(self.appConfig.url)
+        self.client = codeferm.videocapture.videocapture(self.appConfig.url)
 
     def tearDown(self):
         self.logger.debug("tearDown")
@@ -41,7 +41,7 @@ class mjpegclient(unittest.TestCase):
 
     def testGetFrames(self):
         self.logger.debug("testGetFrames")
-        jpeg, image = self.client.getFrame()
+        image = self.client.getFrame()
         # Make sure we have image data
         self.assertFalse(image.size == 0, "Image cannot be size 0")
         frameHeight, frameWidth, channels = image.shape

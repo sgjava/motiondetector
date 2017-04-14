@@ -11,7 +11,7 @@ All rights reserved.
 import socket, urlparse, base64, numpy, cv2
 
 class mjpegclient(object):
-    """MJPEG frame grabber base class.
+    """MJPEG frame grabber class.
     
     Used for socket based frame grabber.
 
