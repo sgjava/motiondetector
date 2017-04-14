@@ -17,8 +17,10 @@ class mjpegclient(framebase.framebase):
 
     """
     
-    def __init__(self, url):
+    def __init__(self, url, timeout):
         """Connect to stream"""
+        # Set socket timeout
+        socket.setdefaulttimeout(timeout)        
         # Parse URL
         parsed = urlparse.urlparse(url)
         port = parsed.port
