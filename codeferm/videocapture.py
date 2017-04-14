@@ -20,6 +20,7 @@ class videocapture(framebase.framebase):
     """
     
     def __init__(self, url):
+        """Open stream"""
         # Check for int regex
         intRe = re.compile(r"^[-]?\d+$")
         # If url is int then open USB camera
@@ -29,22 +30,23 @@ class videocapture(framebase.framebase):
             self.capture = cv2.VideoCapture(url)
         
     def setProperties(self, properties):
-        # Set VideoCapture properties
+        """ Set VideoCapture properties """
         if properties != None:
             for item in properties:
                 self.capture.set(item[0], item[1])
         
     def getFrame(self):
-        # Read in image. Sometimes you will see 
-        # "GStreamer-CRITICAL **: gst_caps_unref: assertion `caps != NULL" failed"
-        # error which can usually be ignored. On some cameras VideoCapture just
-        # dies without error. In that case try one of the other plugins.
+        """ Read in image. Sometimes you will see 
+        "GStreamer-CRITICAL **: gst_caps_unref: assertion `caps != NULL" failed"
+        error which can usually be ignored. On some cameras VideoCapture just
+        dies without error. In that case try one of the other plugins."""
         s, image = self.capture.read()
         return image
    
     def decodeFrame(self, image):
-        # cv2.VideoCapture will not return a raw image, so we just return the decoded image passed
+        """ cv2.VideoCapture will not return a raw image, so we just return the decoded image passed """
         return image
    
     def close(self):
+        """ Clean up resources """
         self.capture.release()

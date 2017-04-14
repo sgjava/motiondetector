@@ -16,9 +16,7 @@ class config(object):
     '''
 
     def __init__(self, fileName):
-        '''
-        Read configuration from INI file
-        '''
+        """ Read configuration from INI file """
         parser = ConfigParser.SafeConfigParser()
         # Read configuration file
         parser.read(fileName)
