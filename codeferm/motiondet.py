@@ -62,7 +62,7 @@ class motiondet(observable.observable):
             movementLocations.append(rect)
         return movementLocations
     
-    def detect(self, image):
+    def detect(self, image, timestamp):
         """Detect motion"""
         # Resize image if not the same size as the original
         if self.frameResizeWidth != self.frameWidth:
@@ -108,10 +108,10 @@ class motiondet(observable.observable):
             if motionPercent <= self.appConfig.stopThreshold:
                 self.motionDetected = False
                 # Let listening objects know motion has stopped      
-                self.notifyObservers(event=motiondet.motionStop, motionPercent=motionPercent)
+                self.notifyObservers(event=motiondet.motionStop, motionPercent=motionPercent, timestamp=timestamp)
         # Threshold to trigger motionStart
         elif motionPercent > self.appConfig.startThreshold:
             self.motionDetected = True
             # Let listening objects know motion has started      
-            self.notifyObservers(event=motiondet.motionStart, motionPercent=motionPercent)
+            self.notifyObservers(event=motiondet.motionStart, motionPercent=motionPercent, timestamp=timestamp)
         return resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered
