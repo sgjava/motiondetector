@@ -1,5 +1,5 @@
 """
-Created on Feb 9, 2013
+Created on Apr 13, 2017
 
 @author: sgoldsmith
 
@@ -8,9 +8,9 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import logging, sys, traceback, time, datetime, importlib, threading, config
+import logging, sys, traceback, time, datetime, importlib, threading, config, motiondet, observer
 
-class videoloop(object):
+class videoloop(observer.observer):
     """Main class used to acquire and process frames.
     
     The idea here is to keep things moving as fast as possible. Anything that
@@ -67,7 +67,14 @@ class videoloop(object):
                 else:
                     # Add new image to end of list
                     frameBuf.append((self.framePluginInstance.decodeFrame(frame), now))
-        self.logger.info("Exiting video stream thread")      
+        self.logger.info("Exiting readFrames thread")
+        
+    def observeEvent(self, **kwargs):
+        "Handle events"
+        if kwargs["event"] == motiondet.motiondet.motionStart:
+            self.logger.debug("Motion start: %4.2f%%" % kwargs["motionPercent"])
+        elif kwargs["event"] == motiondet.motiondet.motionStop:
+            self.logger.debug("Motion stop: %4.2f%%" % kwargs["motionPercent"])
 
     def run(self):
         """Video processing loop"""
@@ -76,25 +83,18 @@ class videoloop(object):
         # See if plug in has FPS set
         if self.framePluginInstance.fps == 0:
             fps = self.appConfig.fps
-        else:
+        elif self.appConfig.fps == 0:
             fps = self.framePluginInstance.fps
+        else:
+            fps = self.appConfig.fps
         if frameWidth > 0 and frameHeight > 0:
-            # Motion detection generally works best with 320 or wider images
-            widthDivisor = int(frameWidth / self.appConfig.resizeWidthDiv)
-            if widthDivisor < 1:
-                widthDivisor = 1
-            frameResizeWidth = int(frameWidth / widthDivisor)
-            frameResizeHeight = int(frameHeight / widthDivisor)
-            self.logger.info("Resized to: %dx%d, fps: %d" % (frameResizeWidth, frameResizeHeight, fps))
-            # Used for full size image marking
-            widthMultiplier = int(frameWidth / frameResizeWidth)
-            heightMultiplier = int(frameHeight / frameResizeHeight)
             # Analyze only ~3 FPS which works well with this type of detection
             frameToCheck = int(fps / 4)
             # 0 means check every frame
             if frameToCheck < 1:
                 frameToCheck = 0
-            skipCount = 0         
+            skipCount = 0
+            elapsedFrames = 0    
             # Frame buffer
             frameBuf = []
             # History buffer to capture just before motion
@@ -106,8 +106,22 @@ class videoloop(object):
             while(self.frameOk and len(frameBuf) < fps):
                 # 1/4 of FPS sleep
                 time.sleep(1.0 / (fps * 4))
+            # Motion detection object
+            motion = motiondet.motiondet(self.appConfig, frameBuf[0][0], self.logger)
+            # Observe motion events
+            motion.addObserver(self)
+            start = time.time()
             # Loop as long as there are frames in the buffer
             while(len(frameBuf) > 0):
+                # Calc FPS    
+                elapsedFrames += 1
+                curTime = time.time()
+                elapse = curTime - start
+                # Log FPS
+                if elapse >= self.appConfig.fpsInterval:
+                    start = curTime
+                    self.logger.debug("%3.1f FPS, frame buffer size: %d" % (elapsedFrames / elapse, len(frameBuf)))
+                    elapsedFrames = 0                
                 # Wait until frame buffer is full
                 while(self.frameOk and len(frameBuf) < fps):
                     # 1/4 of FPS sleep
@@ -123,6 +137,12 @@ class videoloop(object):
                     historyBuf.pop(0)
                 # Toss oldest frame
                 frameBuf.pop(0)
+                # Skip frames until skip count <= 0
+                if skipCount <= 0:
+                    skipCount = frameToCheck
+                    resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = motion.detect(frame)
+                else:
+                    skipCount -= 1
                 
 if __name__ == "__main__":
     try:
@@ -134,6 +154,7 @@ if __name__ == "__main__":
         videoLoop = videoloop(fileName)
         videoLoop.run()
     except:
+        # Add timestamp to errors
         sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
         traceback.print_exc(file=sys.stderr)
     # Do cleanup

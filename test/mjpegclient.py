@@ -31,7 +31,7 @@ class mjpegclient(unittest.TestCase):
         self.logger.info("Configuring from file: %s" % fileName)
         self.logger.info("Logging level: %s" % self.appConfig.loggingLevel)
         self.logger.debug("Logging formatter: %s" % self.appConfig.loggingFormatter)
-        self.client = codeferm.mjpegclient.mjpegclient(self.appConfig.url, self.appConfig.socketTimeout)
+        self.client = codeferm.mjpegclient.mjpegclient(self.appConfig.url)
 
     def tearDown(self):
         self.logger.debug("tearDown")
