@@ -64,9 +64,9 @@ class pedestriandet(detectbase.detectbase):
         # Any hits?
         if len(foundLocationsList) > 0:
             # Only filter if minWeight > 0.0
-            if self.appConfig.minWeight > 0.0:
+            if self.appConfig.minHogWeight > 0.0:
                 # Filter found location by weight
-                foundLocationsList, foundWeightsList = self.filterByWeight(foundLocationsList, foundWeightsList, self.appConfig.minWeight)
+                foundLocationsList, foundWeightsList = self.filterByWeight(foundLocationsList, foundWeightsList, self.appConfig.minHogWeight)
             # Any hits after possible filtering?
             if len(foundLocationsList) > 0:
                 self.pedestrianDetected = True

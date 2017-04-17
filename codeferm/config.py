@@ -63,13 +63,14 @@ class config(object):
         self.winStride = eval(parser.get("pedestrian", "winStride"), {}, {})
         self.padding = eval(parser.get("pedestrian", "padding"), {}, {})
         self.scale0 = parser.getfloat("pedestrian", "scale0")
-        self.minWeight = parser.getfloat("pedestrian", "minWeight")
+        self.minHogWeight = parser.getfloat("pedestrian", "minHogWeight")
         # Set cascade related data attributes
         self.cascadeFile = parser.get("cascade", "cascadeFile")
         self.scaleFactor = parser.getfloat("cascade", "scaleFactor")
         self.minNeighbors = parser.getint("cascade", "minNeighbors")
         self.minWidth = parser.getint("cascade", "minWidth")
         self.minHeight = parser.getint("cascade", "minHeight")
+        self.minCascadeWeight = parser.getint("cascade", "minCascadeWeight")
         # Set SCP related attributes
         self.hostName = parser.get("scp", "hostName")
         self.userName = parser.get("scp", "userName")

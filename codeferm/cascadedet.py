@@ -24,6 +24,29 @@ class cascadedet(detectbase.detectbase):
         self.cascade = cv2.CascadeClassifier(appConfig.cascadeFile)
         self.cascadeDetected = False
         self.logger = logger
+
+    def filterByWeight(self, foundLocsList):
+        """Filter out found locations by weight"""
+        filteredFoundLocations = []
+        filteredFoundWeights = []
+        # Process all ROIs
+        for locList in foundLocsList:
+            locations = []
+            weight = 0
+            # Filter out inside rectangles
+            for ri, r in enumerate(locList):
+                for qi, q in enumerate(locList):
+                    if ri != qi and self.inside(r, q):
+                        weight += 1
+                        break
+                else:
+                    rx, ry, rw, rh = r
+                    locations.append(r)
+            # Filter out by weight
+            if weight >= self.appConfig.minCascadeWeight:
+                filteredFoundLocations.append(locations)
+                filteredFoundWeights.append(weight)
+        return filteredFoundLocations, filteredFoundWeights
     
     def detect(self, image, timestamp, locations):
         """Cascade detect ROI"""
@@ -40,13 +63,15 @@ class cascadedet(detectbase.detectbase):
                     locationsList.append((x, y, w, h))
                     foundLocationsList.append(foundLocations)
         if len(foundLocationsList) > 0:
-            self.cascadeDetected = True
-            if self.appConfig.mark:
-                # Draw rectangle around found objects
-                self.markRoi(image, locationsList, foundLocationsList, (255, 0, 0), 2)
-                            # Let listening objects know pedestrian detected      
-                self.notifyObservers(event=self.appConfig.cascadeDetected, timestamp=timestamp)
-            self.logger.debug("Cascade detected locations: %s" % foundLocationsList)
+            foundLocationsList, foundWeightsList = self.filterByWeight(foundLocationsList)
+            if len(foundLocationsList) > 0:
+                self.cascadeDetected = True
+                if self.appConfig.mark:
+                    # Draw rectangle around found objects
+                    self.markRoi(image, locationsList, foundLocationsList, (255, 0, 0), 2)
+                                # Let listening objects know pedestrian detected      
+                    self.notifyObservers(event=self.appConfig.cascadeDetected, timestamp=timestamp)
+                self.logger.debug("Cascade detected locations: %s, weights: %s" % (foundLocationsList, foundWeightsList))
         return locationsList, foundLocationsList, foundWeightsList
     
     def markRoi(self, image, locList, foundLocsList, boxColor, boxThickness):
