@@ -49,7 +49,6 @@ class pedestriandet(detectbase.detectbase):
     
     def detect(self, image, timestamp, locations):
         """Check ROI for pedestrians"""
-        global hog
         locationsList = []
         foundLocationsList = []
         foundWeightsList = []
@@ -75,8 +74,8 @@ class pedestriandet(detectbase.detectbase):
                     # Draw rectangle around found objects
                     self.markRectWeight(image, locationsList, foundLocationsList, foundWeightsList, (255, 0, 0), 2)
                 self.logger.debug("Pedestrian detected locations: %s" % foundLocationsList)
-            # Let listening objects know motion has stopped      
-            self.notifyObservers(event=self.appConfig.pedestrianDetected, timestamp=timestamp)
+                # Let listening objects know pedestrian detected      
+                self.notifyObservers(event=self.appConfig.pedestrianDetected, timestamp=timestamp)
         return locationsList, foundLocationsList, foundWeightsList
     
     def markRectWeight(self, image, locList, foundLocsList, foundWghtsList, boxColor, boxThickness):

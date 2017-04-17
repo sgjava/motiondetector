@@ -11,12 +11,14 @@ All rights reserved.
 import ConfigParser, cv2
 
 class config(object):
-    """
-    Configuration object
+    """Configuration class.
+    
+    This make it easy to pass around app configuration.
+
     """
     
     # Event type attributes
-    motionStart, motionStop, pedestrianDetected = range(0, 3)    
+    motionStart, motionStop, pedestrianDetected, cascadeDetected = range(0, 4)    
 
     def __init__(self, fileName):
         """ Read configuration from INI file """

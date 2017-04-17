@@ -42,7 +42,7 @@ class videoloop(observer.observer):
             self.framePluginInstance.setProperties(self.appConfig.videoCaptureProperties)
         else:
             self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.framePlugin, url=self.appConfig.url, timeout = self.appConfig.socketTimeout)
-        self.logger.debug("Height: %d, width: %d, fps: %d" % (self.framePluginInstance.frameHeight, self.framePluginInstance.frameWidth, self.framePluginInstance.fps))
+        self.logger.debug("%dx%d, fps: %d" % (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight, self.framePluginInstance.fps))
         self.videoWriter = None
         # History buffer to capture just before motion
         self.historyBuf = []

@@ -13,7 +13,7 @@ import abc, os, cv2, observable
 class detectbase(observable.observable):
     """Detect abstract base class.
     
-    Override detect function to do any image processing.
+    Common functions for detectors.
 
     """
 
@@ -31,13 +31,6 @@ class detectbase(observable.observable):
         # Used for full size image marking
         self.widthMultiplier = int(self.frameWidth / self.frameResizeWidth)
         self.heightMultiplier = int(self.frameHeight / self.frameResizeHeight)
-        
-    def saveFrame(self, image, saveDir, saveFileName):
-        """Save frame"""
-        # Create dir if it doesn"t exist
-        if not os.path.exists(saveDir):
-            os.makedirs(saveDir)
-        cv2.imwrite("%s/%s" % (saveDir, saveFileName), image)        
         
     def inside(self, r, q):
         """See if one rectangle inside another"""
