@@ -9,7 +9,7 @@ are larger:
 
 ![Title](images/hog.jpg)
 
-Using the pre-trained Haar Cascade method pedestrian detection works better when objects are smaller:
+Using the pre-trained Haar Cascade method pedestrian detection works better when objects are smaller (green is motion ROI and blue is a detected pedestrian):
 
 ![Title](images/cascade.jpg)
 
