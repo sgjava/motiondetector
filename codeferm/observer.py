@@ -8,8 +8,6 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import logging
-
 class observer(object):
     """A class of thing that observes an Observable.
     

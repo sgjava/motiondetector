@@ -11,9 +11,12 @@ All rights reserved.
 import ConfigParser, cv2
 
 class config(object):
-    '''
+    """
     Configuration object
-    '''
+    """
+    
+    # Event type attributes
+    motionStart, motionStop, pedestrianDetected = range(0, 3)    
 
     def __init__(self, fileName):
         """ Read configuration from INI file """
@@ -27,17 +30,17 @@ class config(object):
         # Set camera related data attributes
         self.cameraName = parser.get("camera", "name")
         self.framePlugin = parser.get("camera", "framePlugin")
-        self.videoCaptureProperties = eval(parser.get("camera", "videoCaptureProperties"))        
+        self.videoCaptureProperties = eval(parser.get("camera", "videoCaptureProperties"))
         self.url = parser.get("camera", "url")
         self.socketTimeout = parser.getint("camera", "socketTimeout")
         self.resizeWidthDiv = parser.getint("camera", "resizeWidthDiv")
+        self.detectPlugin = parser.get("camera", "detectPlugin")
         self.fpsInterval = parser.getfloat("camera", "fpsInterval")
         self.fps = parser.getint("camera", "fps")
         self.frameBufMax = parser.getint("camera", "frameBufMax")
         self.fourcc = parser.get("camera", "fourcc")
         self.recordFileExt = parser.get("camera", "recordFileExt")
         self.recordDir = parser.get("camera", "recordDir")
-        self.detectType = parser.get("camera", "detectType")
         self.mark = parser.getboolean("camera", "mark")
         self.saveFrames = parser.getboolean("camera", "saveFrames")
         # Set motion related data attributes

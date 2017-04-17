@@ -34,6 +34,8 @@ class videoloop(observer.observer):
         self.logger.debug("Logging formatter: %s" % self.appConfig.loggingFormatter)
         # Get frame grabber plugin
         self.logger.info("Loading frame grabber plugin: %s" % self.appConfig.framePlugin)
+        # If url is a file read fps is timed by the video fps
+        self.urlIsFile = os.path.isfile(self.appConfig.url)
         # If codeferm.videocapture is selected then set VideoCapture properties
         if self.appConfig.framePlugin == "codeferm.videocapture":
             self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.framePlugin, url=self.appConfig.url)
@@ -47,6 +49,7 @@ class videoloop(observer.observer):
         self.fps = 0
         self.frameOk = True
         self.recording = False
+        self.recFrameNum = 0
 
     def getPlugin(self, moduleName, **kwargs):
         """Dynamically load module"""
@@ -62,7 +65,13 @@ class videoloop(observer.observer):
 
     def readFrames(self, frameBuf):
         """Read frames and append to buffer"""
+        # If reading from a video file use its fps
+        if self.urlIsFile:
+            self.fps
+            fpsTime = 1 / float(self.fps)
         while(self.frameOk):
+            if self.urlIsFile:
+                start = time.time()
             now = datetime.datetime.now()
             # Make sure thread doesn't hang in case of socket time out, etc.
             try:
@@ -78,37 +87,66 @@ class videoloop(observer.observer):
                 else:
                     # Add new image to end of list
                     frameBuf.append((self.framePluginInstance.decodeFrame(frame), now))
+            if self.urlIsFile:
+                curTime = time.time()
+                elapsed = curTime - start
+                # Try to keep FPS for files consistent otherwise frameBufMax will be reached
+                if elapsed < fpsTime:
+                    time.sleep(fpsTime - elapsed)
         self.logger.info("Exiting readFrames thread")
 
-    def startRecording(self, timestamp, motionPercent):
-        "Start recording video"
+    def saveFrame(self, frame, fileName):
+        """Save frame"""
+        fileDir = os.path.dirname(fileName)
+        # Create dir if it doesn"t exist
+        if not os.path.exists(fileDir):
+            os.makedirs(fileDir)
+        cv2.imwrite(fileName, frame)        
+
+    def makeFileName(self, timestamp, name):
+        "Create file name based on image timestamp"
         # Construct directory name from camera name, recordDir and date
         dateStr = timestamp.strftime("%Y-%m-%d")
         fileDir = "%s/%s/%s" % (os.path.expanduser(self.appConfig.recordDir), self.appConfig.cameraName, dateStr)
         # Create dir if it doesn"t exist
         if not os.path.exists(fileDir):
             os.makedirs(fileDir)
-        fileName = "%s.%s" % (timestamp.strftime("%H-%M-%S"), self.appConfig.recordFileExt)
-        self.videoWriter = cv2.VideoWriter("%s/%s" % (fileDir, fileName), cv2.VideoWriter_fourcc(self.appConfig.fourcc[0], self.appConfig.fourcc[1], self.appConfig.fourcc[2], self.appConfig.fourcc[3]), self.fps, (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight), True)
-        self.logger.info("Start recording (%4.2f) %s/%s @ %3.1f FPS" % (motionPercent, fileDir, fileName, self.fps))
+        fileName = "%s-%s.%s" % (name, timestamp.strftime("%H-%M-%S"), self.appConfig.recordFileExt)
+        return "%s/%s" % (fileDir, fileName)
+
+    def startRecording(self, timestamp, motionPercent):
+        "Start recording video"
+        self.videoFileName = self.makeFileName(timestamp, "motion")
+        self.videoWriter = cv2.VideoWriter(self.videoFileName, cv2.VideoWriter_fourcc(self.appConfig.fourcc[0], self.appConfig.fourcc[1], self.appConfig.fourcc[2], self.appConfig.fourcc[3]), self.fps, (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight), True)
+        self.logger.info("Start recording (%4.2f) %s @ %3.1f FPS" % (motionPercent, self.videoFileName, self.fps))
+        self.recFrameNum = 1
         self.recording = True
+
+    def stopRecording(self, motionPercent):
+        "Stop recording video"
+        self.recording = False
+        # Write off frame buffer skipping frame already written
+        self.logger.info("Writing %d frames of history buffer" % len(self.historyBuf))
+        for f in self.historyBuf[1:]:
+            self.videoWriter.write(f[0])
+            self.recFrameNum += 1
+        del self.videoWriter
+        self.logger.info("Stop recording, %d frames" % (self.recFrameNum-1))
         
     def observeEvent(self, **kwargs):
         "Handle events"
-        if kwargs["event"] == motiondet.motiondet.motionStart:
+        if kwargs["event"] == self.appConfig.motionStart:
             self.logger.debug("Motion start: %4.2f%%" % kwargs["motionPercent"])
             # Kick off startRecording thread
             thread = threading.Thread(target=self.startRecording, args=(kwargs["timestamp"], kwargs["motionPercent"],))
             thread.start()
-        elif kwargs["event"] == motiondet.motiondet.motionStop:
+        elif kwargs["event"] == self.appConfig.motionStop:
             self.logger.debug("Motion stop: %4.2f%%" % kwargs["motionPercent"])
-            # Write off frame buffer skipping frame already written
-            self.logger.info("Writing %d frames of history buffer" % len(self.historyBuf))
-            for f in self.historyBuf[1:]:
-                self.videoWriter.write(f[0])
-            del self.videoWriter
-            self.logger.info("Stop recording")
-            self.recording = False
+            # Kick off stopRecording thread
+            thread = threading.Thread(target=self.stopRecording, args=(kwargs["motionPercent"],))
+            thread.start()
+        elif kwargs["event"] == self.appConfig.pedestrianDetected:
+            self.logger.debug("Pedestrian detected")
 
     def run(self):
         """Video processing loop"""
@@ -142,6 +180,12 @@ class videoloop(observer.observer):
             motion = motiondet.motiondet(self.appConfig, frameBuf[0][0], self.logger)
             # Observe motion events
             motion.addObserver(self)
+            # Load detect plugin
+            if self.appConfig.detectPlugin != "":
+                self.logger.info("Loading detection plugin: %s" % self.appConfig.detectPlugin)
+                self.detectPluginInstance = self.getPlugin(moduleName=self.appConfig.detectPlugin, appConfig = self.appConfig, image = frameBuf[0][0], logger = self.logger)
+                # Observe motion events
+                self.detectPluginInstance.addObserver(self)
             start = time.time()
             # Loop as long as there are frames in the buffer
             while(len(frameBuf) > 0):
@@ -172,13 +216,21 @@ class videoloop(observer.observer):
                 if skipCount <= 0:
                     skipCount = frameToCheck
                     resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = motion.detect(frame, timestamp)
+                    if self.appConfig.detectPlugin != "":
+                        locationsList, foundLocationsList, foundWeightsList = self.detectPluginInstance.detect(resizeImg, timestamp, movementLocationsFiltered)
+                        if len(foundLocationsList) > 0 and self.recording:
+                            # Save off detected elapsedFrames
+                            if self.appConfig.saveFrames:
+                                thread = threading.Thread(target=self.saveFrame, args=(frame, "%s/%d.jpg" % (os.path.splitext(self.videoFileName)[0], self.recFrameNum)),)
+                                thread.start()
                 else:
                     skipCount -= 1
                 # Write frame if recording
                 if self.recording:
                     if len(self.historyBuf) > 0:
                         # Write first image in history buffer (the oldest)
-                        self.videoWriter.write(self.historyBuf[0][0])                    
+                        self.videoWriter.write(self.historyBuf[0][0])
+                        self.recFrameNum += 1                    
                 
 if __name__ == "__main__":
     try:
@@ -193,6 +245,12 @@ if __name__ == "__main__":
         # Add timestamp to errors
         sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
         traceback.print_exc(file=sys.stderr)
+        # Make sure readFrames exits
+        videoLoop.frameOk = False
     # Do cleanup
     if videoLoop:
+        # Make sure to close video recording
+        if videoLoop.recording:
+            videoLoop.stopRecording(0.0)
+        # Close capture
         videoLoop.framePluginInstance.close()

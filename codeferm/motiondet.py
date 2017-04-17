@@ -8,17 +8,14 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import cv2, numpy, observable
+import cv2, numpy, detectbase
 
-class motiondet(observable.observable):
+class motiondet(detectbase.detectbase):
     """Motion detection image processor.
     
     Uses moving average to determine change percent.
     
     """
-    
-    # Event types class attributes
-    motionStart, motionStop = range(0, 2)
     
     def __init__(self, appConfig, image, logger):
         """Init object"""
@@ -30,23 +27,12 @@ class motiondet(observable.observable):
         else:
             self.maskImg = None   
         self.movingAvgImg = None
-        # Motion detection generally works best with 320 or wider images
-        self.frameHeight, self.frameWidth, channels = image.shape
-        self.widthDivisor = int(self.frameWidth / appConfig.resizeWidthDiv)
-        if self.widthDivisor < 1:
-            self.widthDivisor = 1
-        self.frameResizeWidth = int(self.frameWidth / self.widthDivisor)
-        self.frameResizeHeight = int(self.frameHeight / self.widthDivisor)
-        logger.info("Resized to: %dx%d" % (self.frameResizeWidth, self.frameResizeHeight))
+        # Set frame information
+        self.frameInfo(image, appConfig)
+        logger.info("Motion image resized to: %dx%d" % (self.frameResizeWidth, self.frameResizeHeight))
         self.motionDetected = False
         self.logger = logger
 
-    def inside(self, r, q):
-        """See if one rectangle inside another"""
-        rx, ry, rw, rh = r
-        qx, qy, qw, qh = q
-        return rx > qx and ry > qy and rx + rw < qx + qw and ry + rh < qy + qh
-    
     def contours(self, image):
         """Return contours"""
         # The background (bright) dilates around the black regions of frame
@@ -103,15 +89,18 @@ class motiondet(observable.observable):
                 # Toss rectangles >= maxChange percent of total frame
                 if regPercent < self.appConfig.maxChange :
                     movementLocationsFiltered.append(r)
+        if self.appConfig.mark:
+            # Draw rectangle around found objects
+            self.markRectSize(image, movementLocationsFiltered, (0, 255, 0), 2)
         # Motion start stop events
         if self.motionDetected:
             if motionPercent <= self.appConfig.stopThreshold:
                 self.motionDetected = False
                 # Let listening objects know motion has stopped      
-                self.notifyObservers(event=motiondet.motionStop, motionPercent=motionPercent, timestamp=timestamp)
+                self.notifyObservers(event=self.appConfig.motionStop, motionPercent=motionPercent, timestamp=timestamp)
         # Threshold to trigger motionStart
         elif motionPercent > self.appConfig.startThreshold:
             self.motionDetected = True
             # Let listening objects know motion has started      
-            self.notifyObservers(event=motiondet.motionStart, motionPercent=motionPercent, timestamp=timestamp)
+            self.notifyObservers(event=self.appConfig.motionStart, motionPercent=motionPercent, timestamp=timestamp)
         return resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered
