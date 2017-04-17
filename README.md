@@ -7,11 +7,11 @@ The primary focus of Motion detector is efficient video processing, fault tolera
 Using the pre-trained Histogram of Oriented Gradients and Linear SVM method pedestrian detection works better when objects
 are larger:
 
-![Title](images/hog.png)
+![Title](images/hog.jpg)
 
 Using the pre-trained Haar Cascade method pedestrian detection works better when objects are smaller:
 
-![Title](images/cascade.png)
+![Title](images/cascade.jpg)
 
 It's important to use the right detectors and configuration to achieve the desired results.
 
