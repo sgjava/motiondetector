@@ -69,14 +69,17 @@ class motiondet(detectbase.detectbase):
         # Convert to BW
         ret, bwImg = cv2.threshold(grayImg, self.appConfig.blackThreshold, 255, cv2.THRESH_BINARY)
         # Apply ignore mask
-        if self.maskImg is not None:
-            bwImg = numpy.bitwise_and(bwImg, self.maskImg)     
+        if self.maskImg is None:
+            motionImg = bwImg
+        else:
+            motionImg = numpy.bitwise_and(bwImg, self.maskImg)     
         # Total number of changed motion pixels
         height, width, channels = resizeImg.shape
-        motionPercent = 100.0 * cv2.countNonZero(bwImg) / (width * height)
+        motionPercent = 100.0 * cv2.countNonZero(motionImg) / (width * height)
         # Detect if camera is adjusting and reset reference if more than threshold
         if motionPercent > self.appConfig.maxChange:
             self.movingAvgImg = numpy.float32(workImg)
+        # Analyze entire image even if ignore mask used
         movementLocations = self.contours(bwImg)
         # Filter out inside rectangles
         for ri, r in enumerate(movementLocations):
