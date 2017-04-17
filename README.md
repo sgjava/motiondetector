@@ -1,8 +1,8 @@
 ![Title](images/title.png)
 
-Motion detector takes input from video sources such as network cameras, web cams, files, etc. and makes intelligent decisions based on analyzing each frame. Motion detector uses a plugin based event driven architecture that allows you to extend functionality for a particular use case. It is deployed as an intelligent security system, but can be easily configured to your particular scenario.
+Motion Detector takes input from video sources such as network cameras, web cams, files, etc. and makes intelligent decisions based on analyzing each frame. Motion Detector uses a plugin based event driven architecture that allows you to extend functionality for a particular use case. It is deployed as an intelligent security system, but can be easily configured to your particular scenario.
 
-The primary focus of Motion detector is efficient video processing, fault tolerance and extensibility. While most security themed video monitoring is based on motion detection, CVP places a high value on Computer vision for intelligent frame analysis such as HOG pedestrian and Haar cascade multi-scale detection.
+The primary focus of Motion detector is efficient video processing, fault tolerance and extensibility. While most security themed video monitoring is based on motion detection, Motion Detector places a high value on Computer vision for intelligent frame analysis such as HOG pedestrian and Haar cascade multi-scale detection.
 
 Using the pre-trained Histogram of Oriented Gradients and Linear SVM method pedestrian detection works better when objects
 are larger:
@@ -24,12 +24,12 @@ It's important to use the right detectors and configuration to achieve the desir
 * Fault tolerant architecture ensures buggy camera firmware or poor network
   connectivity will not derail video processing.
 * High performance frame capture plugins including Python socket based MJPEG decoder.
-* Threshold based motion detection, ignore mask, multiple object marking and recording.
+* Threshold based motion detection, ignore mask, multiple object marking and video recording.
 
 ### Requirements
 * X86, X86_64, ARMv7 or ARMv8 version of Ubuntu 16.04 or Debian 8 (will most likely work on other Linux based operating systems as well)
 * Internet connection
-* Camera
+* Camera or video file
 * [Install OpenCV](https://github.com/sgjava/install-opencv) or some other method to install latest OpenCV
 
 ### FreeBSD License
