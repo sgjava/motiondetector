@@ -57,6 +57,7 @@ environment = PYTHONPATH=/home/<username>/motiondetector
 ```
    
 * `sudo supervisorctl update`
+* `tail /var/log/supervisor/videoloop.log`
 
 ### FreeBSD License
 Copyright (c) Steven P. Goldsmith
