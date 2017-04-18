@@ -15,7 +15,7 @@ Using the pre-trained Haar Cascade method works better when objects are smaller:
 It's important to use the right detectors and configuration to achieve the desired results.
 
 ### Features
-* Motion Detector been tested on SBCs such as CHIP, ODROID C1/C2/XU4, Pine A64, etc. to create smart cameras.
+* Motion Detector has been tested on SBCs such as CHIP, ODROID C1/C2/XU4, Pine A64, etc. to create smart cameras.
 * Run multiple copies on a central server for IP based cameras.
 * Supports several types of video inputs including USB and IP (wired/wireless)
   cameras, video files, etc.
