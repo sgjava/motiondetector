@@ -79,7 +79,7 @@ class motiondet(detectbase.detectbase):
         # Detect if camera is adjusting and reset reference if more than threshold
         if motionPercent > self.appConfig.maxChange:
             self.movingAvgImg = numpy.float32(workImg)
-        # Analyze entire image even if ignore mask used
+        # Analyze entire image even if ignore mask used, otherwise the ROI could be partially truncated
         movementLocations = self.contours(bwImg)
         # Filter out inside rectangles
         for ri, r in enumerate(movementLocations):
