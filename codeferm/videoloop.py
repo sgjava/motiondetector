@@ -77,22 +77,22 @@ class videoloop(observer.observer):
             try:
                 frame = self.framePluginInstance.getFrame()
                 self.frameOk = len(frame) > 0
+                if self.frameOk:
+                    # Make sure we do not run out of memory
+                    if len(frameBuf) > self.appConfig.frameBufMax:
+                        self.logger.error("Frame buffer exceeded: %d" % self.appConfig.frameBufMax)
+                        self.frameOk = False
+                    else:
+                        # Add new image to end of list
+                        frameBuf.append((self.framePluginInstance.decodeFrame(frame), now))
+                if self.urlIsFile:
+                    curTime = time.time()
+                    elapsed = curTime - start
+                    # Try to keep FPS for files consistent otherwise frameBufMax will be reached
+                    if elapsed < fpsTime:
+                        time.sleep(fpsTime - elapsed)
             except:
                 self.frameOk = False
-            if self.frameOk:
-                # Make sure we do not run out of memory
-                if len(frameBuf) > self.appConfig.frameBufMax:
-                    self.logger.error("Frame buffer exceeded: %d" % self.appConfig.frameBufMax)
-                    self.frameOk = False
-                else:
-                    # Add new image to end of list
-                    frameBuf.append((self.framePluginInstance.decodeFrame(frame), now))
-            if self.urlIsFile:
-                curTime = time.time()
-                elapsed = curTime - start
-                # Try to keep FPS for files consistent otherwise frameBufMax will be reached
-                if elapsed < fpsTime:
-                    time.sleep(fpsTime - elapsed)
         self.logger.info("Exiting readFrames thread")
 
     def saveFrame(self, frame, fileName):
@@ -138,15 +138,21 @@ class videoloop(observer.observer):
         if kwargs["event"] == self.appConfig.motionStart:
             self.logger.debug("Motion start: %4.2f%%" % kwargs["motionPercent"])
             # Kick off startRecording thread
-            thread = threading.Thread(target=self.startRecording, args=(kwargs["timestamp"], kwargs["motionPercent"],))
-            thread.start()
+            startRecordingThread = threading.Thread(target=self.startRecording, args=(kwargs["timestamp"], kwargs["motionPercent"],))
+            startRecordingThread.start()
         elif kwargs["event"] == self.appConfig.motionStop:
             self.logger.debug("Motion stop: %4.2f%%" % kwargs["motionPercent"])
             # Kick off stopRecording thread
-            thread = threading.Thread(target=self.stopRecording, args=(kwargs["motionPercent"],))
-            thread.start()
+            stopRecordingThread = threading.Thread(target=self.stopRecording, args=(kwargs["motionPercent"],))
+            stopRecordingThread.start()
         elif kwargs["event"] == self.appConfig.pedestrianDetected:
             self.logger.debug("Pedestrian detected")
+
+    def waitOnFrameBuf(self, frameBuf):
+        """Wait until frame buffer is full"""
+        while(self.frameOk and len(frameBuf) < self.fps):
+            # 1/4 of FPS sleep
+            time.sleep(1.0 / (self.fps * 4))
 
     def run(self):
         """Video processing loop"""
@@ -170,12 +176,10 @@ class videoloop(observer.observer):
             # Frame buffer
             frameBuf = []
             # Kick off readFrames thread
-            thread = threading.Thread(target=self.readFrames, args=(frameBuf,))
-            thread.start()
-            # Wait until buffer is full
-            while(self.frameOk and len(frameBuf) < self.fps):
-                # 1/4 of FPS sleep
-                time.sleep(1.0 / (self.fps * 4))
+            readFramesThread = threading.Thread(target=self.readFrames, args=(frameBuf,))
+            readFramesThread.start()
+            # Wait until frame buffer is full
+            self.waitOnFrameBuf(frameBuf)
             # Motion detection object
             motion = motiondet.motiondet(self.appConfig, frameBuf[0][0], self.logger)
             # Observe motion events
@@ -199,9 +203,7 @@ class videoloop(observer.observer):
                     self.logger.debug("%3.1f FPS, frame buffer size: %d" % (elapsedFrames / elapse, len(frameBuf)))
                     elapsedFrames = 0                
                 # Wait until frame buffer is full
-                while(self.frameOk and len(frameBuf) < self.fps):
-                    # 1/4 of FPS sleep
-                    time.sleep(1.0 / (self.fps * 4))
+                self.waitOnFrameBuf(frameBuf)
                 # Get oldest frame
                 frame = frameBuf[0][0]
                 timestamp = frameBuf[0][1]
@@ -245,8 +247,6 @@ if __name__ == "__main__":
         # Add timestamp to errors
         sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
         traceback.print_exc(file=sys.stderr)
-        # Make sure readFrames exits
-        videoLoop.frameOk = False
     # Do cleanup
     if videoLoop:
         # Make sure to close video recording
