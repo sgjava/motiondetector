@@ -8,7 +8,7 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import cv2, detectbase
+import os, cv2, detectbase
 
 class cascadedet(detectbase.detectbase):
     """Cascade classifier detector using ROI.
@@ -21,7 +21,7 @@ class cascadedet(detectbase.detectbase):
         # Set frame information
         self.frameInfo(image, appConfig)
         # Initialize classifier
-        self.cascade = cv2.CascadeClassifier(appConfig.cascadeFile)
+        self.cascade = cv2.CascadeClassifier(os.path.expanduser(appConfig.cascadeFile))
         self.cascadeDetected = False
         self.logger = logger
 
