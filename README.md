@@ -46,19 +46,17 @@ To make Motion Detector more resilient it's wise to run it with a process contro
 * `sudo nano /etc/supervisor/conf.d/videoloop.conf`
 ```
 [program:videoloop]
-command = python videoloop.py
+command = python videoloop.py /path/to/your/config.ini
 directory = /home/<username>/motiondetector/codeferm
 user = <username>
 autostart = true  
 autorestart = true  
 stdout_logfile = /var/log/supervisor/videoloop.log  
-stderr_logfile = /var/log/supervisor/videoloop.log   
+stderr_logfile = /var/log/supervisor/videoloop.log
+environment = PYTHONPATH=/home/<username>/motiondetector
 ```
    
-* ``
-* ``
-* ``
-* ``
+* `sudo supervisorctl update`
 
 ### FreeBSD License
 Copyright (c) Steven P. Goldsmith
