@@ -1,6 +1,6 @@
 ![Title](images/title.png)
 
-Motion Detector takes input from video sources such as network cameras, web cams, files, etc. and makes intelligent decisions based on analyzing each frame. Motion Detector uses a plugin based event driven architecture that allows you to extend functionality for a particular use case. It is deployed as an intelligent security system, but can be easily configured to your particular scenario.
+Motion Detector takes input from video sources such as network cameras, web cams, files, etc. and makes intelligent decisions based on analyzing each frame. Motion Detector uses a plugin based event driven architecture that allows you to extend functionality. It is deployed as an intelligent security system, but can be easily configured to your particular scenario.
 
 The primary focus of Motion detector is efficient video processing, fault tolerance and extensibility. While most security themed video monitoring is based on motion detection, Motion Detector places a high value on Computer vision for intelligent frame analysis such as HOG pedestrian and Haar cascade multi-scale detection.
 
