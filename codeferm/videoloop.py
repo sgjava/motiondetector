@@ -8,7 +8,7 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import logging, sys, os, traceback, time, datetime, importlib, threading, cv2, config, motiondet, observer
+import logging, sys, os, traceback, time, datetime, importlib, threading, cv2, numpy, config, motiondet, observer
 
 class videoloop(observer.observer):
     """Main class used to acquire and process frames.
@@ -119,6 +119,9 @@ class videoloop(observer.observer):
         self.videoFileName = self.makeFileName(timestamp, "motion")
         self.videoWriter = cv2.VideoWriter(self.videoFileName, cv2.VideoWriter_fourcc(self.appConfig.fourcc[0], self.appConfig.fourcc[1], self.appConfig.fourcc[2], self.appConfig.fourcc[3]), self.fps, (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight), True)
         self.logger.info("Start recording (%4.2f) %s @ %3.1f FPS" % (motionPercent, self.videoFileName, self.fps))
+        if self.appConfig.historyImage:
+            # Create black history image
+            self.historyImg = numpy.zeros((self.motion.frameResizeHeight, self.motion.frameResizeWidth), numpy.uint8)
         self.recFrameNum = 1
         self.recording = True
 
@@ -132,6 +135,11 @@ class videoloop(observer.observer):
             self.recFrameNum += 1
         del self.videoWriter
         self.logger.info("Stop recording, %d frames" % (self.recFrameNum-1))
+        # Write off history image
+        if self.appConfig.historyImage:
+            # Save history image ready for ignore mask editing
+            self.logger.info("Writing history image %s.png" % self.videoFileName)
+            cv2.imwrite("%s.png" % self.videoFileName, cv2.bitwise_not(self.historyImg))
         
     def observeEvent(self, **kwargs):
         "Handle events"
@@ -183,9 +191,9 @@ class videoloop(observer.observer):
             # Wait until frame buffer is full
             self.waitOnFrameBuf(frameBuf)
             # Motion detection object
-            motion = motiondet.motiondet(self.appConfig, frameBuf[0][0], self.logger)
+            self.motion = motiondet.motiondet(self.appConfig, frameBuf[0][0], self.logger)
             # Observe motion events
-            motion.addObserver(self)
+            self.motion.addObserver(self)
             # Load detect plugin
             if self.appConfig.detectPlugin != "":
                 self.logger.info("Loading detection plugin: %s" % self.appConfig.detectPlugin)
@@ -219,7 +227,10 @@ class videoloop(observer.observer):
                 # Skip frames until skip count <= 0
                 if skipCount <= 0:
                     skipCount = frameToCheck
-                    resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = motion.detect(frame, timestamp)
+                    resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = self.motion.detect(frame, timestamp)
+                    if self.appConfig.historyImage and self.recording:
+                        # Update history image
+                        self.historyImg = numpy.bitwise_or(bwImg, self.historyImg)                    
                     if self.appConfig.detectPlugin != "":
                         locationsList, foundLocationsList, foundWeightsList = self.detectPluginInstance.detect(resizeImg, timestamp, movementLocationsFiltered)
                         if len(foundLocationsList) > 0 and self.recording:
@@ -234,7 +245,7 @@ class videoloop(observer.observer):
                     if len(self.historyBuf) > 0:
                         # Write first image in history buffer (the oldest)
                         self.videoWriter.write(self.historyBuf[0][0])
-                        self.recFrameNum += 1                    
+                        self.recFrameNum += 1
                 
 if __name__ == "__main__":
     try:
@@ -256,3 +267,4 @@ if __name__ == "__main__":
             videoLoop.stopRecording(0.0)
         # Close capture
         videoLoop.framePluginInstance.close()
+        videoLoop.logger.info("Process exit")
