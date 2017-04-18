@@ -40,7 +40,7 @@ It's important to use the right detectors and configuration to achieve the desir
   You should see the video process and create output in ~/motion
 
 ### Configure supervisor
-To make Motion Detector more resilient it's wise to run it with a process control system like [Supervisor](http://supervisord.org).
+To make Motion Detector more resilient it's wise to run it with a process control system like [Supervisor](http://supervisord.org). Motion Detector currently fails fast if it gets a bad frame or socket timeout (as long as you use a reasonable socket timeout value in the configuration). Supervisor will automatically restart videoloop.py after failure.
 * `sudo apt-get install supervisor`
 * `sudo service supervisor start`
 * `sudo nano /etc/supervisor/conf.d/videoloop.conf`
