@@ -27,10 +27,26 @@ class cascadedet(detectbase.detectbase):
 
     def filterByWeight(self, foundLocsList):
         """Filter out found locations by weight"""
+        filteredLocations = []
+        # Remove duplicates sized rectangles by ROI
+        for locList in foundLocsList:
+            items = set({})
+            filteredRects = []
+            # Filter ROI
+            for r in locList:
+                rx, ry, rw, rh = r
+                # Filter by minimum size 
+                if rw > self.appConfig.minWidth and rh > self.appConfig.minHeight:
+                    # Only add rects with different size
+                    if ((rw,rh)) not in items:
+                        items.add((rw,rh))
+                        filteredRects.append(r)
+            if len(filteredRects) > 0:
+                filteredLocations.append(filteredRects)
         filteredFoundLocations = []
         filteredFoundWeights = []
         # Process all ROIs
-        for locList in foundLocsList:
+        for locList in filteredLocations:
             locations = []
             weight = 0
             # Filter out inside rectangles
