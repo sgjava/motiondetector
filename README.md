@@ -4,12 +4,11 @@ Motion Detector takes input from video sources such as network cameras, web cams
 
 The primary focus of Motion detector is efficient video processing, fault tolerance and extensibility. While most security themed video monitoring is based on motion detection, Motion Detector places a high value on Computer vision for intelligent frame analysis such as HOG pedestrian and Haar cascade multi-scale detection.
 
-Using the pre-trained Histogram of Oriented Gradients and Linear SVM method pedestrian detection works better when objects
-are larger:
+Using the pre-trained Histogram of Oriented Gradients and Linear SVM method works better when objects are larger (green is motion ROI and blue is a detected pedestrian):
 
 ![Title](images/hog.jpg)
 
-Using the pre-trained Haar Cascade method pedestrian detection works better when objects are smaller (green is motion ROI and blue is a detected pedestrian):
+Using the pre-trained Haar Cascade method works better when objects are smaller:
 
 ![Title](images/cascade.jpg)
 
