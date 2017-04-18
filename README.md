@@ -44,7 +44,7 @@ To make Motion Detector more resilient it's wise to run it with a process contro
 * `sudo apt-get install supervisor`
 * `sudo service supervisor start`
 * `sudo nano /etc/supervisor/conf.d/videoloop.conf`
-   ```
+```
 [program:videoloop]
 command = python videoloop.py
 directory = /home/<username>/motiondetector/codeferm
@@ -53,7 +53,8 @@ autostart = true
 autorestart = true  
 stdout_logfile = /var/log/supervisor/videoloop.log  
 stderr_logfile = /var/log/supervisor/videoloop.log   
-   ```
+```
+   
 * ``
 * ``
 * ``
