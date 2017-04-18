@@ -147,6 +147,8 @@ class videoloop(observer.observer):
             stopRecordingThread.start()
         elif kwargs["event"] == self.appConfig.pedestrianDetected:
             self.logger.debug("Pedestrian detected")
+        elif kwargs["event"] == self.appConfig.cascadeDetected:
+            self.logger.debug("Cascade detected")
 
     def waitOnFrameBuf(self, frameBuf):
         """Wait until frame buffer is full"""

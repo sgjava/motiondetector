@@ -71,7 +71,7 @@ class cascadedet(detectbase.detectbase):
                     self.markRoi(image, locationsList, foundLocationsList, (255, 0, 0), 2)
                                 # Let listening objects know pedestrian detected      
                     self.notifyObservers(event=self.appConfig.cascadeDetected, timestamp=timestamp)
-                self.logger.debug("Cascade detected locations: %s, weights: %s" % (foundLocationsList, foundWeightsList))
+                #self.logger.debug("Cascade detected locations: %s, weights: %s" % (foundLocationsList, foundWeightsList))
         return locationsList, foundLocationsList, foundWeightsList
     
     def markRoi(self, image, locList, foundLocsList, boxColor, boxThickness):

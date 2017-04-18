@@ -73,7 +73,7 @@ class pedestriandet(detectbase.detectbase):
                 if self.appConfig.mark:
                     # Draw rectangle around found objects
                     self.markRectWeight(image, locationsList, foundLocationsList, foundWeightsList, (255, 0, 0), 2)
-                self.logger.debug("Pedestrian detected locations: %s" % foundLocationsList)
+                #self.logger.debug("Pedestrian detected locations: %s" % foundLocationsList)
                 # Let listening objects know pedestrian detected      
                 self.notifyObservers(event=self.appConfig.pedestrianDetected, timestamp=timestamp)
         return locationsList, foundLocationsList, foundWeightsList
