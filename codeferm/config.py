@@ -18,7 +18,7 @@ class config(object):
     """
     
     # Event type attributes
-    motionStart, motionStop, pedestrianDetected, cascadeDetected = range(0, 4)    
+    motionStart, motionStop, pedestrianDetected, cascadeDetected, startRecording, stopRecording = range(0, 6)    
 
     def __init__(self, fileName):
         """ Read configuration from INI file """
@@ -33,6 +33,7 @@ class config(object):
         self.cameraName = parser.get("camera", "name")
         self.framePlugin = parser.get("camera", "framePlugin")
         self.videoCaptureProperties = eval(parser.get("camera", "videoCaptureProperties"))
+        self.videoloopPlugins = eval(parser.get("camera", "videoloopPlugins"), {}, {})
         self.url = parser.get("camera", "url")
         self.socketTimeout = parser.getint("camera", "socketTimeout")
         self.resizeWidthDiv = parser.getint("camera", "resizeWidthDiv")

@@ -8,9 +8,9 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import logging, sys, os, traceback, time, datetime, importlib, threading, cv2, numpy, config, motiondet, observer
+import logging, sys, os, traceback, time, datetime, importlib, threading, cv2, numpy, config, motiondet, observer, observable
 
-class videoloop(observer.observer):
+class videoloop(observer.observer, observable.observable):
     """Main class used to acquire and process frames.
     
     The idea here is to keep things moving as fast as possible. Anything that
@@ -124,6 +124,7 @@ class videoloop(observer.observer):
             self.historyImg = numpy.zeros((self.motion.frameResizeHeight, self.motion.frameResizeWidth), numpy.uint8)
         self.recFrameNum = 1
         self.recording = True
+        self.notifyObservers(event=self.appConfig.startRecording, videoFileName=self.videoFileName)
 
     def stopRecording(self, motionPercent):
         "Stop recording video"
@@ -140,6 +141,7 @@ class videoloop(observer.observer):
             # Save history image ready for ignore mask editing
             self.logger.info("Writing history image %s.png" % self.videoFileName)
             cv2.imwrite("%s.png" % self.videoFileName, cv2.bitwise_not(self.historyImg))
+        self.notifyObservers(event=self.appConfig.stopRecording, videoFileName=self.videoFileName)
         
     def observeEvent(self, **kwargs):
         "Handle events"
@@ -200,6 +202,13 @@ class videoloop(observer.observer):
                 self.detectPluginInstance = self.getPlugin(moduleName=self.appConfig.detectPlugin, appConfig = self.appConfig, image = frameBuf[0][0], logger = self.logger)
                 # Observe motion events
                 self.detectPluginInstance.addObserver(self)
+            if self.appConfig.videoloopPlugins is not None:
+                # Load videoloop plugins
+                for item in self.appConfig.videoloopPlugins:
+                    self.logger.info("Loading videoloop plugin: %s" % item)
+                    pluginInstance = self.getPlugin(moduleName=item, appConfig = self.appConfig, logger = self.logger)
+                    # Observe videoloop events
+                    self.addObserver(pluginInstance)
             start = time.time()
             # Loop as long as there are frames in the buffer
             while(len(frameBuf) > 0):
@@ -232,7 +241,7 @@ class videoloop(observer.observer):
                         # Update history image
                         self.historyImg = numpy.bitwise_or(bwImg, self.historyImg)                    
                     if self.appConfig.detectPlugin != "":
-                        locationsList, foundLocationsList, foundWeightsList = self.detectPluginInstance.detect(resizeImg, timestamp, movementLocationsFiltered)
+                        locationsList, foundLocationsList, foundWeightsList = self.detectPluginInstance.detect(frame, resizeImg, timestamp, movementLocationsFiltered)
                         if len(foundLocationsList) > 0 and self.recording:
                             # Save off detected elapsedFrames
                             if self.appConfig.saveFrames:

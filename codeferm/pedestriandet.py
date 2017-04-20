@@ -47,7 +47,7 @@ class pedestriandet(detectbase.detectbase):
                 filteredFoundWeights.append(filteredWeights)
         return filteredFoundLocations, filteredFoundWeights
     
-    def detect(self, image, timestamp, locations):
+    def detect(self, image, resizeImg, timestamp, locations):
         """Check ROI for pedestrians"""
         locationsList = []
         foundLocationsList = []
@@ -55,7 +55,7 @@ class pedestriandet(detectbase.detectbase):
         for x, y, w, h in locations:
             # Make sure ROI is big enough for detector
             if w > 63 and h > 127:
-                imageRoi = image[y:y + h, x:x + w]
+                imageRoi = resizeImg[y:y + h, x:x + w]
                 foundLocations, foundWeights = self.hog.detectMultiScale(imageRoi, winStride=self.appConfig.winStride, padding=self.appConfig.padding, scale=self.appConfig.scale0)
                 if len(foundLocations) > 0:
                     locationsList.append((x, y, w, h))

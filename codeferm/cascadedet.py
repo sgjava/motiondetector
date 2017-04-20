@@ -64,7 +64,7 @@ class cascadedet(detectbase.detectbase):
                 filteredFoundWeights.append(weight)
         return filteredFoundLocations, filteredFoundWeights
     
-    def detect(self, image, timestamp, locations):
+    def detect(self, image, resizeImg, timestamp, locations):
         """Cascade detect ROI"""
         locationsList = []
         foundLocationsList = []
@@ -73,7 +73,7 @@ class cascadedet(detectbase.detectbase):
             # Make sure ROI is big enough for detector
             if w > self.appConfig.minWidth and h > self.appConfig.minHeight:
                 # Image should be gray scale
-                imageRoi = image[y:y + h, x:x + w]
+                imageRoi = resizeImg[y:y + h, x:x + w]
                 foundLocations = self.cascade.detectMultiScale(imageRoi, self.appConfig.scaleFactor, self.appConfig.minNeighbors)
                 if len(foundLocations) > 0:
                     locationsList.append((x, y, w, h))
