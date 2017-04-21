@@ -42,7 +42,7 @@ class videoloop(observer.observer, observable.observable):
             self.framePluginInstance.setProperties(self.appConfig.videoCaptureProperties)
         else:
             self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.framePlugin, url=self.appConfig.url, timeout = self.appConfig.socketTimeout)
-        self.logger.debug("%dx%d, fps: %d" % (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight, self.framePluginInstance.fps))
+        self.logger.info("%dx%d, fps: %d" % (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight, self.framePluginInstance.fps))
         self.videoWriter = None
         # History buffer to capture just before motion
         self.historyBuf = []
@@ -265,15 +265,13 @@ if __name__ == "__main__":
             fileName = sys.argv[1]
         videoLoop = videoloop(fileName)
         videoLoop.run()
-    except:
-        # Add timestamp to errors
-        sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
-        traceback.print_exc(file=sys.stderr)
-    # Do cleanup
-    if videoLoop:
         # Make sure to close video recording
         if videoLoop.recording:
             videoLoop.stopRecording(0.0)
         # Close capture
         videoLoop.framePluginInstance.close()
         videoLoop.logger.info("Process exit")
+    except:
+        # Add timestamp to errors
+        sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
+        traceback.print_exc(file=sys.stderr)
