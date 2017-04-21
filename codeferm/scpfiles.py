@@ -34,7 +34,7 @@ class scpfiles(observer.observer):
             command += "scp -r %s %s@%s:%s; " % (imagesPath, userName, hostName, remoteDir)
         # Copy video file    
         command += "scp %s %s@%s:%s/%s" % (localFileName, userName, hostName, remoteDir, os.path.basename(localFileName))
-        # scp file
+        # Delete source files after SCP?
         if deleteSource:
             command += "; rm -f %s; rm -rf %s " % (localFileName, imagesPath)
         logger.info(" Submitting %s" % command)
