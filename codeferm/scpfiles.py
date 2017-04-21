@@ -22,24 +22,21 @@ class scpfiles(observer.observer):
     
     def copyFile(self, logger, hostName, userName, localFileName, remoteDir, deleteSource, timeout):
         """SCP file using command line."""
+        command = ""
         # Create remote dir only once
         if self.curRemoteDir != remoteDir:
             self.curRemoteDir = remoteDir
-            # Give mkdir time to work
-            beforeScp = "sleep 2; "
             # mkdir on remote host
-            command = "ssh %s@%s \"%s\"" % (userName, hostName, "mkdir -p %s" % remoteDir)
-            logger.info(" Submitting %s" % command)
-            proc = subprocess.Popen([command], shell=True)
-            logger.info("Submitted process %d" % proc.pid)
-        else:
-            beforeScp = ""
+            command += "ssh %s@%s \"%s\"" % (userName, hostName, "mkdir -p %s; " % remoteDir)
+        # Copy images dir if it exists
+        imagesPath = os.path.splitext(localFileName)[0]
+        if os.path.exists(imagesPath):
+            command += "scp -r %s %s@%s:%s; " % (imagesPath, userName, hostName, remoteDir)
+        # Copy video file    
+        command += "scp %s %s@%s:%s/%s" % (localFileName, userName, hostName, remoteDir, os.path.basename(localFileName))
         # scp file
         if deleteSource:
-            deleteCommand = "; rm -f %s" % localFileName
-        else:
-            deleteCommand = ""
-        command = "%sscp %s %s@%s:%s/%s%s" % (beforeScp, localFileName, userName, hostName, remoteDir, os.path.basename(localFileName), deleteCommand)
+            command += "; rm -f %s; rm -rf %s " % (localFileName, imagesPath)
         logger.info(" Submitting %s" % command)
         proc = subprocess.Popen([command], shell=True)
         logger.info("Submitted process %d" % proc.pid)
@@ -50,4 +47,3 @@ class scpfiles(observer.observer):
             # Kick off startRecording thread
             scpThread = threading.Thread(target=self.copyFile, args=(self.logger, self.appConfig.hostName, self.appConfig.userName, kwargs["videoFileName"], os.path.expanduser(self.appConfig.remoteDir), self.appConfig.deleteSource, self.appConfig.timeout,))
             scpThread.start()
-       

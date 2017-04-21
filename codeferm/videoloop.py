@@ -204,11 +204,13 @@ class videoloop(observer.observer, observable.observable):
                 self.detectPluginInstance.addObserver(self)
             if self.appConfig.videoloopPlugins is not None:
                 # Load videoloop plugins
+                self.videoloopPluginList = []
                 for item in self.appConfig.videoloopPlugins:
                     self.logger.info("Loading videoloop plugin: %s" % item)
                     pluginInstance = self.getPlugin(moduleName=item, appConfig = self.appConfig, logger = self.logger)
                     # Observe videoloop events
                     self.addObserver(pluginInstance)
+                    self.videoloopPluginList.append(pluginInstance)
             start = time.time()
             # Loop as long as there are frames in the buffer
             while(len(frameBuf) > 0):
@@ -219,7 +221,7 @@ class videoloop(observer.observer, observable.observable):
                 # Log FPS
                 if elapse >= self.appConfig.fpsInterval:
                     start = curTime
-                    self.logger.debug("%3.1f FPS, frame buffer size: %d" % (elapsedFrames / elapse, len(frameBuf)))
+                    self.logger.info("%3.1f FPS, frame buffer size: %d" % (elapsedFrames / elapse, len(frameBuf)))
                     elapsedFrames = 0                
                 # Wait until frame buffer is full
                 self.waitOnFrameBuf(frameBuf)
@@ -255,6 +257,11 @@ class videoloop(observer.observer, observable.observable):
                         # Write first image in history buffer (the oldest)
                         self.videoWriter.write(self.historyBuf[0][0])
                         self.recFrameNum += 1
+        # If exiting while recording then stop recording                
+        if self.recording:
+            self.stopRecording(0.0)
+        # Close capture
+        self.framePluginInstance.close()
                 
 if __name__ == "__main__":
     try:
@@ -265,11 +272,6 @@ if __name__ == "__main__":
             fileName = sys.argv[1]
         videoLoop = videoloop(fileName)
         videoLoop.run()
-        # Make sure to close video recording
-        if videoLoop.recording:
-            videoLoop.stopRecording(0.0)
-        # Close capture
-        videoLoop.framePluginInstance.close()
         videoLoop.logger.info("Process exit")
     except:
         # Add timestamp to errors
