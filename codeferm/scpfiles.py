@@ -27,7 +27,7 @@ class scpfiles(observer.observer):
         if self.curRemoteDir != remoteDir:
             self.curRemoteDir = remoteDir
             # mkdir on remote host
-            command += "ssh %s@%s \"%s\"" % (userName, hostName, "mkdir -p %s; " % remoteDir)
+            command += "ssh %s@%s \"%s\"; " % (userName, hostName, "mkdir -p %s" % remoteDir)
         # Copy images dir if it exists
         imagesPath = os.path.splitext(localFileName)[0]
         if os.path.exists(imagesPath):
@@ -36,7 +36,7 @@ class scpfiles(observer.observer):
         command += "scp %s %s@%s:%s/%s" % (localFileName, userName, hostName, remoteDir, os.path.basename(localFileName))
         # Delete source files after SCP?
         if deleteSource:
-            command += "; rm -f %s; rm -rf %s " % (localFileName, imagesPath)
+            command += "; rm -f %s %s.png; rm -rf %s " % (localFileName, localFileName, imagesPath)
         logger.info(" Submitting %s" % command)
         proc = subprocess.Popen([command], shell=True)
         logger.info("Submitted process %d" % proc.pid)
