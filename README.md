@@ -6,11 +6,11 @@ The primary focus of Motion Detector is efficient video processing, fault tolera
 
 Using the pre-trained Histogram of Oriented Gradients and Linear SVM method works better when objects are larger (green is motion ROI and blue is a detected pedestrian):
 
-![Title](images/hog.jpg)
+![HOG](images/hog.jpg)
 
 Using the pre-trained Haar Cascade method works better when objects are smaller:
 
-![Title](images/cascade.jpg)
+![Cascade](images/cascade.jpg)
 
 It's important to use the right detectors and configuration to achieve the desired results.
 
@@ -24,7 +24,7 @@ It's important to use the right detectors and configuration to achieve the desir
 * High performance frame capture plugins including Python socket based MJPEG decoder.
 * Threshold based motion detection, ignore mask, multiple object marking and video recording.
 * Pedestrian and human feature detection
-* Add your own plugins!
+* Add your own plugins
 
 ### Requirements
 * X86, X86_64, ARMv7 or ARMv8 version of Ubuntu 16.04 or Debian 8 (will most likely work on other Linux based operating systems as well)
@@ -61,17 +61,49 @@ Solution: Sample only some frames. Motion detection using the moving average alg
 
 Solution: Analyze only motion ROI (regions of interest). By analyzing only ROI you can cut down processing time tremendously. For instance, if only 10% of the frame has motion then the OpenCV function should run about 900% faster! This may not work where there's a large change frame after frame. Luckily this will not happen for most security type scenarios. If a region is too small for the detector it is not processed thus speeding things up even more.
 
-#### Run Motion Detection
-If you wish to use the SCP plugin then you should generate ssh keypair, so you do not have to pass passwords around or save them in a file. It's handy to scp video files to a central server or cloud storage after detection.
-* ssh-keygen
-* ssh-copy-id user@host
-
+#### Run Motion Detector
 The default [test.ini](https://github.com/sgjava/motiondetector/blob/master/config/test.ini) is configured to detect pedestrians from a local video file in the project. Try this first and make sure it works properly.
 * `cd ~/motiondetector/codeferm`
 * `export PYTHONPATH=$PYTHONPATH:~/motiondetector`
 * `python videoloop.py`
 * Video will record to ~/motion/test using camera name (default test), date for directory and time for file name
 * This is handy for debugging issues or fine tuning using the same file over and over
+
+Create a new configuration file for [videoloop.py](https://github.com/sgjava/motiondetector/blob/master/codeferm/videoloop.py) to suit your needs.
+
+* `cp ~/motiondetector/config/test.ini ~/camera.ini`
+* `cd ~/motiondetector/codeferm`
+* `python videoloop.py ~/camera.ini`
+
+The same test video should have processed fine with a copy of the test configuration. Now we can try the default V4L camera which is -1:
+
+* `nano ~/camera.ini` and change the following:
+    * `name` to `camera`
+    * `url` to `-1`
+    * `videoCaptureProperties` to `((cv2.CAP_PROP_FRAME_WIDTH, 1280), (cv2.CAP_PROP_FRAME_HEIGHT, 720))` or a resolution your camera supports.
+    * `framePlugin` to `codeferm.videocapture`    
+    * `detectPlugin` to empty    
+    * `fps` to camera's FPS (watch output for actual FPS and tune if necessary)
+    * `mark` to `False`
+    * `ignoreMask` to empty    
+    * `historyImage` to `True`
+    
+Try the new configuration:
+
+* `cd ~/motiondetector/codeferm`
+* `python videoloop.py ~/camera.ini`
+
+videoloop should write video files to ~/motion/camera when motion is detected. You can adjust `startThreshold` and `stopThreshold` as needed. Let videoloop run and capture videos. Once you have enough samples take a look at the history images. History images use then name of the video file and add .png to the end. Take a look at the example one I created with the sample video:
+
+![Ignore mask](resources/mask.png) ![HOG](images/hog.jpg)
+
+I'm ignoring that balloon at the top center of the video. White pixels are considered for motion detection and black pixels are ignored. This only pertains to the motion detection moving average. All movement is considered for detection otherwise
+you might miss an important region of interest (ROI). If you apply this to your situation you can effectively prevent a lot of false
+motion detection. Trees, bushes, cars and other objects can be ignored if the fall into a particular region of the ignore mask.
+
+If you wish to use the SCP plugin then you should generate ssh keypair, so you do not have to pass passwords around or save them in a file. It's handy to scp video files to a central server or cloud storage after detection.
+* ssh-keygen
+* ssh-copy-id user@host
 
 ### Configure supervisor
 To make Motion Detector more resilient it's wise to run it with a process control system like [Supervisor](http://supervisord.org). Motion Detector currently fails fast if it gets a bad frame or socket timeout (as long as you use a reasonable socket timeout value in the configuration). Supervisor will automatically restart videoloop.py after failure.
