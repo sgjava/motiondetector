@@ -44,6 +44,6 @@ class scpfiles(observer.observer):
     def observeEvent(self, **kwargs):
         "Handle events"
         if kwargs["event"] == self.appConfig.stopRecording:
-            # Kick off startRecording thread
+            # Kick off scp thread
             scpThread = threading.Thread(target=self.copyFile, args=(self.logger, self.appConfig.hostName, self.appConfig.userName, kwargs["videoFileName"], os.path.expanduser(self.appConfig.remoteDir), self.appConfig.deleteSource, self.appConfig.timeout,))
             scpThread.start()

@@ -93,7 +93,7 @@ class videoloop(observer.observer, observable.observable):
                         time.sleep(fpsTime - elapsed)
             except:
                 self.frameOk = False
-        self.logger.info("Exiting readFrames thread")
+        self.logger.info("readFrames thread exit")
 
     def saveFrame(self, frame, fileName):
         """Save frame"""
