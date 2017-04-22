@@ -23,6 +23,8 @@ It's important to use the right detectors and configuration to achieve the desir
   connectivity will not derail video processing.
 * High performance frame capture plugins including Python socket based MJPEG decoder.
 * Threshold based motion detection, ignore mask, multiple object marking and video recording.
+* Pedestrian and human feature detection
+* Add your own plugins!
 
 ### Requirements
 * X86, X86_64, ARMv7 or ARMv8 version of Ubuntu 16.04 or Debian 8 (will most likely work on other Linux based operating systems as well)
@@ -40,7 +42,7 @@ It's important to use the right detectors and configuration to achieve the desir
   You should see the video process and create output in ~/motion
   
 ### Motion Detection
-This is a practical example that you can use as the basis for other CV projects. From experience I can tell you that you need to understand the usage scenario. Simple motion detection will work well with static backgrounds, but using it outside you have to deal with cars, tree branches blowing, sudden light changes, etc. This is why built in motion detection is mostly useless on security cameras for these types of scenarios. You can use ignore bitmaps and ROI (regions of interest) to improve results with dynamic backgrounds. For instance, I can ignore my palm tree, but trigger motion if you walk in my doorway.
+From experience I can tell you that you need to understand the usage scenario. Simple motion detection will work well with static backgrounds, but using it outside you have to deal with cars, tree branches blowing, sudden light changes, etc. This is why built in motion detection is mostly useless on security cameras for these types of scenarios. You can use ignore bitmaps and ROI (regions of interest) to improve results with dynamic backgrounds. For instance, I can ignore my palm tree, but trigger motion if you walk in my doorway.
 
 #### Boosting Performance
 I see a lot of posts on the Internet about OpenCV performance on various ARM based SBCs being CPU intensive or slow frame capture, etc. Over time I learned the tricks of the trade and kicked it up a few notches from my own research. These techniques may not work for all usage scenarios or OpenCV functions, but they do work well for security type applications.
