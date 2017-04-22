@@ -93,13 +93,15 @@ Try the new configuration:
 * `cd ~/motiondetector/codeferm`
 * `python videoloop.py ~/camera.ini`
 
-videoloop should write video files to ~/motion/camera when motion is detected. You can adjust `startThreshold` and `stopThreshold` as needed. Let videoloop run and capture videos. Once you have enough samples take a look at the history images. History images use then name of the video file and add .png to the end. Take a look at the example one I created with the sample video:
+videoloop should write video files to ~/motion/camera when motion is detected. You can adjust `startThreshold` and `stopThreshold` as needed. Let videoloop run and capture videos. Once you have enough samples take a look at the history images. History images use the name of the video file and add .png to the end. Take a look at the example one I created with the sample video:
 
 ![Ignore mask](resources/mask.png) ![HOG](images/hog.jpg)
 
 I'm ignoring that balloon at the top center of the video. White pixels are considered for motion detection and black pixels are ignored. This only pertains to the motion detection moving average. All movement is considered for detection otherwise
 you might miss an important region of interest (ROI). If you apply this to your situation you can effectively prevent a lot of false
-motion detection. Trees, bushes, cars and other objects can be ignored if the fall into a particular region of the ignore mask.
+motion detection. Trees, bushes, cars and other objects can be ignored if the fall into a particular region of the ignore mask. Use the history image as the basis of your ignore mask. It's **important** not to move the camera after the mask is created or it will not be aligned properly.
+
+Of course, you can leave `ignoreMask` empty if you wish to analyze the entire frame for motion.
 
 If you wish to use the SCP plugin then you should generate ssh keypair, so you do not have to pass passwords around or save them in a file. It's handy to scp video files to a central server or cloud storage after detection.
 * ssh-keygen
