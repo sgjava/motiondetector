@@ -107,7 +107,7 @@ If you wish to use the SCP plugin then you should generate ssh keypair, so you d
 * ssh-keygen
 * ssh-copy-id user@host
 
-### Configure supervisor
+### Configure Supervisor
 To make Motion Detector more resilient it's wise to run it with a process control system like [Supervisor](http://supervisord.org). Motion Detector currently fails fast if it gets a bad frame or socket timeout (as long as you use a reasonable socket timeout value in the configuration). Supervisor will automatically restart videoloop.py after failure.
 * `sudo apt-get install supervisor`
 * `sudo service supervisor start`
@@ -126,6 +126,24 @@ environment = PYTHONPATH=/home/<username>/motiondetector
    
 * `sudo supervisorctl update`
 * `tail /var/log/supervisor/videoloop.log`
+
+If you plan on using mjpg-streamer have Supervisor take care of that as well.
+
+* `sudo nano /etc/supervisor/conf.d/mjpg-streamer.conf`
+```
+[program:mjpg-streamer]
+command = mjpg_streamer -i "/usr/local/lib/input_uvc.so -n -f 5 -r 1280x720" -o "/usr/local/lib/output_http.so -w /usr/local/www"
+directory = /home/<username>
+user = <username>
+autostart = true  
+autorestart = true  
+stdout_logfile = /var/log/supervisor/mjpg-streamer.log  
+stderr_logfile = /var/log/supervisor/mjpg-streamer.log  
+environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32
+```
+   
+* `sudo supervisorctl update`
+* `tail /var/log/supervisor/mjpg-streamer.log`
 
 ### FreeBSD License
 Copyright (c) Steven P. Goldsmith
