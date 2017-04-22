@@ -269,7 +269,7 @@ if __name__ == "__main__":
         if len(sys.argv) < 2:
             fileName = "../config/test.ini"
         else:
-            fileName = sys.argv[1]
+            fileName = os.path.expanduser(sys.argv[1])
         videoLoop = videoloop(fileName)
         videoLoop.run()
         videoLoop.logger.info("Process exit")

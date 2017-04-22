@@ -52,7 +52,6 @@ class config(object):
         self.alpha = parser.getfloat("motion", "alpha")
         self.blackThreshold = parser.getint("motion", "blackThreshold")
         self.maxChange = parser.getfloat("motion", "maxChange")
-        self.skipFrames = parser.getint("motion", "skipFrames")
         self.startThreshold = parser.getfloat("motion", "startThreshold")
         self.stopThreshold = parser.getfloat("motion", "stopThreshold")
         self.historyImage = parser.getboolean("motion", "historyImage")
