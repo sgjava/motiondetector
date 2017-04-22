@@ -145,6 +145,10 @@ environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32
 * `sudo supervisorctl update`
 * `tail /var/log/supervisor/mjpg-streamer.log`
 
+If you wish to use the SCP plugin then you should generate ssh keypair, so you do not have to pass passwords around or save them in a file. It's handy to scp video files to a central server or cloud storage after detection.
+* ssh-keygen
+* ssh-copy-id user@host
+
 ### FreeBSD License
 Copyright (c) Steven P. Goldsmith
 
