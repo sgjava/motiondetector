@@ -118,7 +118,7 @@ class videoloop(observer.observer, observable.observable):
         "Start recording video"
         self.videoFileName = self.makeFileName(timestamp, "motion")
         self.videoWriter = cv2.VideoWriter(self.videoFileName, cv2.VideoWriter_fourcc(self.appConfig.fourcc[0], self.appConfig.fourcc[1], self.appConfig.fourcc[2], self.appConfig.fourcc[3]), self.fps, (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight), True)
-        self.logger.info("Start recording (%4.2f) %s @ %3.1f FPS" % (motionPercent, self.videoFileName, self.fps))
+        self.logger.info("Start recording (%4.2f%%) %s @ %3.1f FPS" % (motionPercent, self.videoFileName, self.fps))
         if self.appConfig.historyImage:
             # Create black history image
             self.historyImg = numpy.zeros((self.motion.frameResizeHeight, self.motion.frameResizeWidth), numpy.uint8)
@@ -135,7 +135,7 @@ class videoloop(observer.observer, observable.observable):
             self.videoWriter.write(f[0])
             self.recFrameNum += 1
         del self.videoWriter
-        self.logger.info("Stop recording, %d frames" % (self.recFrameNum-1))
+        self.logger.info("Stop recording (%4.2f%%), %d frames" % (motionPercent, self.recFrameNum-1))
         # Write off history image
         if self.appConfig.historyImage:
             # Save history image ready for ignore mask editing

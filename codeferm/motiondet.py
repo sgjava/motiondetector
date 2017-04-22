@@ -103,7 +103,7 @@ class motiondet(detectbase.detectbase):
                 # Let listening objects know motion has stopped      
                 self.notifyObservers(event=self.appConfig.motionStop, motionPercent=motionPercent, timestamp=timestamp)
         # Threshold to trigger motionStart
-        elif motionPercent > self.appConfig.startThreshold:
+        elif motionPercent > self.appConfig.startThreshold and motionPercent < self.appConfig.maxChange:
             self.motionDetected = True
             # Let listening objects know motion has started      
             self.notifyObservers(event=self.appConfig.motionStart, motionPercent=motionPercent, timestamp=timestamp)
