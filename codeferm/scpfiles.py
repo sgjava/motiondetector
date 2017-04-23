@@ -23,6 +23,8 @@ class scpfiles(observer.observer):
     def copyFile(self, logger, hostName, userName, localFileName, remoteDir, deleteSource, timeout):
         """SCP file using command line."""
         command = ""
+        # Get date part of local path and add to remote dir
+        remoteDir += "/" + os.path.split(os.path.split(localFileName)[0])[1]
         # Create remote dir only once
         if self.curRemoteDir != remoteDir:
             self.curRemoteDir = remoteDir
