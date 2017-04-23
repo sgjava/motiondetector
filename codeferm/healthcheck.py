@@ -41,6 +41,6 @@ class healthcheck(observer.observer):
     def observeEvent(self, **kwargs):
         "Handle events"
         if kwargs["event"] == self.appConfig.healthCheck:
-            # Kick off scp thread
-            scpThread = threading.Thread(target=self.check, args=(kwargs["frameBuf"], kwargs["fps"], kwargs["frameOk"],))
-            scpThread.start()
+            # Kick off health check thread
+            healthThread = threading.Thread(target=self.check, args=(kwargs["frameBuf"], kwargs["fps"], kwargs["frameOk"],))
+            healthThread.start()
