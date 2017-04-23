@@ -20,7 +20,7 @@ class scpfiles(observer.observer):
         self.logger = logger
         self.curRemoteDir = ""
     
-    def copyFile(self, logger, hostName, userName, localFileName, remoteDir, deleteSource, timeout):
+    def copyFile(self, hostName, userName, localFileName, remoteDir, deleteSource, timeout):
         """SCP file using command line."""
         command = ""
         # Get date part of local path and add to remote dir
@@ -39,13 +39,13 @@ class scpfiles(observer.observer):
         # Delete source files after SCP?
         if deleteSource:
             command += "; rm -f %s %s.png; rm -rf %s " % (localFileName, localFileName, imagesPath)
-        logger.info(" Submitting %s" % command)
+        self.logger.info(" Submitting %s" % command)
         proc = subprocess.Popen([command], shell=True)
-        logger.info("Submitted process %d" % proc.pid)
+        self.logger.info("Submitted process %d" % proc.pid)
         
     def observeEvent(self, **kwargs):
         "Handle events"
         if kwargs["event"] == self.appConfig.stopRecording:
             # Kick off scp thread
-            scpThread = threading.Thread(target=self.copyFile, args=(self.logger, self.appConfig.hostName, self.appConfig.userName, kwargs["videoFileName"], os.path.expanduser(self.appConfig.remoteDir), self.appConfig.deleteSource, self.appConfig.timeout,))
+            scpThread = threading.Thread(target=self.copyFile, args=(self.appConfig.hostName, self.appConfig.userName, kwargs["videoFileName"], os.path.expanduser(self.appConfig.remoteDir), self.appConfig.deleteSource, self.appConfig.timeout,))
             scpThread.start()

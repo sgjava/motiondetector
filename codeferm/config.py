@@ -18,7 +18,7 @@ class config(object):
     """
     
     # Event type attributes
-    motionStart, motionStop, pedestrianDetected, cascadeDetected, startRecording, stopRecording = range(0, 6)    
+    motionStart, motionStop, pedestrianDetected, cascadeDetected, startRecording, stopRecording, healthCheck = range(0, 7)    
 
     def __init__(self, fileName):
         """ Read configuration from INI file """
@@ -77,3 +77,5 @@ class config(object):
         self.remoteDir = parser.get("scp", "remoteDir")
         self.timeout = parser.getint("scp", "timeout")
         self.deleteSource = parser.getboolean("scp", "deleteSource")        
+        # Set health check related attributes
+        self.healthFileName = parser.get("health", "healthFileName")

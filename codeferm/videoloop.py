@@ -222,7 +222,8 @@ class videoloop(observer.observer, observable.observable):
                 if elapse >= self.appConfig.fpsInterval:
                     start = curTime
                     self.logger.info("%3.1f FPS, frame buffer size: %d" % (elapsedFrames / elapse, len(frameBuf)))
-                    elapsedFrames = 0                
+                    elapsedFrames = 0
+                    self.notifyObservers(event=self.appConfig.healthCheck, frameBuf=frameBuf, fps=self.fps, frameOk=self.frameOk)
                 # Wait until frame buffer is full
                 self.waitOnFrameBuf(frameBuf)
                 # Get oldest frame
