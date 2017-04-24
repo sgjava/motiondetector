@@ -29,7 +29,7 @@ class motiondet(detectbase.detectbase):
         self.movingAvgImg = None
         # Set frame information
         self.frameInfo(image, appConfig)
-        logger.info("Motion image resized to: %dx%d" % (self.frameResizeWidth, self.frameResizeHeight))
+        logger.info("Image resized to: %dx%d" % (self.frameResizeWidth, self.frameResizeHeight))
         self.motionDetected = False
         self.logger = logger
 
