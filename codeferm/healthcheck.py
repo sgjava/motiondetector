@@ -25,7 +25,7 @@ class healthcheck(observer.observer):
         
     def check(self, frameBuf, fps, frameOk):
         """Verify videoloop health"""
-        if len(frameBuf) >= fps and frameOk:
+        if len(frameBuf) <= fps and frameOk:
             self.logger.info("Health OK")
             fileName = os.path.expanduser(self.appConfig.healthFileName)
             fileDir = os.path.dirname(fileName)
