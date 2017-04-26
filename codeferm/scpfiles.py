@@ -34,6 +34,9 @@ class scpfiles(observer.observer):
         imagesPath = os.path.splitext(localFileName)[0]
         if os.path.exists(imagesPath):
             command += "scp -r %s %s@%s:%s; " % (imagesPath, userName, hostName, remoteDir)
+        # Copy history image
+        if self.appConfig.historyImage:
+            command += "scp %s.png %s@%s:%s/%s.png; " % (localFileName, userName, hostName, remoteDir, os.path.basename(localFileName))
         # Copy video file    
         command += "scp %s %s@%s:%s/%s" % (localFileName, userName, hostName, remoteDir, os.path.basename(localFileName))
         # Delete source files after SCP?
