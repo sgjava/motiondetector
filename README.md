@@ -1,9 +1,9 @@
 ![Title](images/title.png)
 
 Motion Detector takes input from video sources such as network cameras, web cams, files, etc. and makes intelligent decisions based on analyzing frames. Motion Detector uses a plugin based event driven architecture that allows you to extend functionality easily. It is deployed as an intelligent security system, but can be configured for your particular scenario. Reasons to use Motion Detector:
-* If you have been disappointed with over priced door bell and flood light cameras.
-* If you have some Linux skills and can follow directions then you can build a powerful low priced smart camera.
-* If you are a developer and SBC tinkerer then the possibilities are endless.
+* You have been disappointed with over priced proprietary cameras which require subscriptions to store your data.
+* You have some Linux skills and can follow directions then you can build a powerful low priced smart camera.
+* You are a developer and SBC tinkerer then the possibilities are endless.
 
 The primary focus of Motion Detector is efficient video processing, fault tolerance and extensibility. While most security themed video monitoring is based on motion detection, Motion Detector places a high value on Computer Vision for intelligent frame analysis such as HOG pedestrian and Haar cascade multi-scale detection.
 
@@ -18,12 +18,10 @@ Using the pre-trained Haar Cascade method works better when objects are smaller:
 It's important to use the right detectors and configuration to achieve the desired results.
 
 ### Features
-* Motion Detector has been tested on SBCs such as CHIP, ODROID C1/C2/XU4, Pine A64, etc. to create smart cameras.
-* Run multiple copies on a central server for IP based cameras.
-* Supports several types of video inputs including USB and IP (wired/wireless)
-  cameras, video files, etc.
-* Fault tolerant architecture ensures buggy camera firmware or poor network
-  connectivity will not derail video processing.
+* Motion Detector has been tested on SBCs such as Raspberry Pi, NanoPi M1, CHIP, ODROID C1/C2/XU4, Pine A64, etc. to create compact smart cameras.
+* Run multiple copies on a central server for IP based "dumb" cameras.
+* Supports several types of video inputs including USB and IP (wired/wireless) cameras, video files, etc.
+* Fault tolerant architecture ensures buggy camera firmware or poor network connectivity will not derail video processing.
 * High performance frame capture plugins including Python socket based MJPEG decoder.
 * Threshold based motion detection, ignore mask, multiple object marking and video recording.
 * Pedestrian and human feature detection
