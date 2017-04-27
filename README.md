@@ -4,8 +4,8 @@ Motion Detector takes input from video sources such as network cameras, web cams
 * You have been disappointed with over priced proprietary cameras which require subscriptions to store your data.
 * You have been disappointed with other surveillance software being Windows only (iSpy), woefully outdated (motion) or requiring a special OS image (KERBEROS.IO).
 * You want to use advanced Computer Vision and Machine Learning algorithms.
-* If you are a developer and SBC tinkerer then the possibilities are endless.
 * There is no free/paid version, lame accounts to sign up for, etc. If you want extra features you can request them or write them yourself.
+* If you are a developer and SBC tinkerer then the possibilities are endless.
 
 The primary focus of Motion Detector is efficient video processing, fault tolerance and extensibility. While most security themed video monitoring is based on motion detection, Motion Detector places a high value on Computer Vision for intelligent frame analysis such as HOG pedestrian and Haar cascade multi-scale detection.
 
