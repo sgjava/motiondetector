@@ -8,7 +8,7 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import cv2, numpy, detectbase
+import os, cv2, numpy, detectbase
 
 class motiondet(detectbase.detectbase):
     """Motion detection image processor.
@@ -22,7 +22,7 @@ class motiondet(detectbase.detectbase):
         self.appConfig = appConfig
         # Read ignore mask image if set
         if appConfig.ignoreMask != "":
-            self.maskImg = cv2.imread(appConfig.ignoreMask, 0)
+            self.maskImg = cv2.imread(os.path.expanduser(appConfig.ignoreMask), 0)
             logger.info("Using ignore mask: %s" % appConfig.ignoreMask)            
         else:
             self.maskImg = None   
