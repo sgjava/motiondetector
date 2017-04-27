@@ -100,14 +100,18 @@ class videoloop(observer.observer, observable.observable):
     def writeFrames(self):
         """Write frames"""
         while(self.recording):
-            if len(self.writeBuf) > 0:
-                # Write first image in write buffer (the oldest)
-                self.videoWriter.write(self.writeBuf[0][0])
-                self.writeBuf.pop(0)
-                self.recFrameNum += 1
-            else:
-                # 1/4 of FPS sleep
-                time.sleep(1.0 / (self.fps * 4))
+            # Make sure thread doesn't hang in case of write exception
+            try:
+                if len(self.writeBuf) > 0:
+                    # Write first image in write buffer (the oldest)
+                    self.videoWriter.write(self.writeBuf[0][0])
+                    self.writeBuf.pop(0)
+                    self.recFrameNum += 1
+                else:
+                    # 1/4 of FPS sleep
+                    time.sleep(1.0 / (self.fps * 4))
+            except:
+                self.recording = False                    
         # Write off write buffer
         self.logger.info("Writing %d frames of write buffer" % len(self.writeBuf))
         for f in self.writeBuf[1:]:
@@ -230,44 +234,48 @@ class videoloop(observer.observer, observable.observable):
             start = time.time()
             # Loop as long as there are frames in the buffer
             while(len(frameBuf) > 0):
-                # Calc FPS    
-                elapsedFrames += 1
-                curTime = time.time()
-                elapse = curTime - start
-                # Log FPS
-                if elapse >= self.appConfig.fpsInterval:
-                    start = curTime
-                    self.logger.info("%3.1f FPS, frame buffer size: %d" % (elapsedFrames / elapse, len(frameBuf)))
-                    elapsedFrames = 0
-                    self.notifyObservers(event=self.appConfig.healthCheck, frameBuf=frameBuf, fps=self.fps, frameOk=self.frameOk)
-                # Wait until frame buffer is full
-                self.waitOnFrameBuf(frameBuf)
-                # Get oldest frame
-                frame = frameBuf[0][0]
-                timestamp = frameBuf[0][1]
-                # Buffer oldest frame
-                self.historyBuf.append(frameBuf[0])
-                # Toss oldest history frame
-                if len(self.historyBuf) > self.fps:
-                    self.historyBuf.pop(0)
-                # Toss oldest frame
-                frameBuf.pop(0)
-                # Skip frames until skip count <= 0
-                if skipCount <= 0:
-                    skipCount = frameToCheck
-                    resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = self.motion.detect(frame, timestamp)
-                    if self.appConfig.historyImage and self.recording:
-                        # Update history image
-                        self.historyImg = numpy.bitwise_or(bwImg, self.historyImg)                    
-                    if self.appConfig.detectPlugin != "":
-                        locationsList, foundLocationsList, foundWeightsList = self.detectPluginInstance.detect(frame, resizeImg, timestamp, movementLocationsFiltered)
-                        if len(foundLocationsList) > 0 and self.recording:
-                            # Save off detected elapsedFrames
-                            if self.appConfig.saveFrames:
-                                thread = threading.Thread(target=self.saveFrame, args=(frame, "%s/%d.jpg" % (os.path.splitext(self.videoFileName)[0], self.recFrameNum)),)
-                                thread.start()
-                else:
-                    skipCount -= 1
+                # Make sure thread doesn't hang in case of exception
+                try:
+                    # Calc FPS    
+                    elapsedFrames += 1
+                    curTime = time.time()
+                    elapse = curTime - start
+                    # Log FPS
+                    if elapse >= self.appConfig.fpsInterval:
+                        start = curTime
+                        self.logger.info("%3.1f FPS, frame buffer size: %d" % (elapsedFrames / elapse, len(frameBuf)))
+                        elapsedFrames = 0
+                        self.notifyObservers(event=self.appConfig.healthCheck, frameBuf=frameBuf, fps=self.fps, frameOk=self.frameOk)
+                    # Wait until frame buffer is full
+                    self.waitOnFrameBuf(frameBuf)
+                    # Get oldest frame
+                    frame = frameBuf[0][0]
+                    timestamp = frameBuf[0][1]
+                    # Buffer oldest frame
+                    self.historyBuf.append(frameBuf[0])
+                    # Toss oldest history frame
+                    if len(self.historyBuf) > self.fps:
+                        self.historyBuf.pop(0)
+                    # Toss oldest frame
+                    frameBuf.pop(0)
+                    # Skip frames until skip count <= 0
+                    if skipCount <= 0:
+                        skipCount = frameToCheck
+                        resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = self.motion.detect(frame, timestamp)
+                        if self.appConfig.historyImage and self.recording:
+                            # Update history image
+                            self.historyImg = numpy.bitwise_or(bwImg, self.historyImg)                    
+                        if self.appConfig.detectPlugin != "":
+                            locationsList, foundLocationsList, foundWeightsList = self.detectPluginInstance.detect(frame, resizeImg, timestamp, movementLocationsFiltered)
+                            if len(foundLocationsList) > 0 and self.recording:
+                                # Save off detected elapsedFrames
+                                if self.appConfig.saveFrames:
+                                    thread = threading.Thread(target=self.saveFrame, args=(frame, "%s/%d.jpg" % (os.path.splitext(self.videoFileName)[0], self.recFrameNum)),)
+                                    thread.start()
+                    else:
+                        skipCount -= 1
+                except:
+                    frameBuf = []                        
                 # Add frame if recording
                 if self.recording and len(self.historyBuf) > 0:
                         # Write first image in history buffer (the oldest)
