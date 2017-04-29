@@ -67,18 +67,21 @@ class videoloop(observer.observer, observable.observable):
 
     def readFrames(self, frameBuf):
         """Read frames and append to buffer"""
-        # If reading from a video file use its fps
-        if self.urlIsFile:
-            self.fps
-            fpsTime = 1 / float(self.fps)
-        while(self.frameOk):
+        # Make sure thread doesn't hang in case of socket time out, etc.
+        try:
+            # If reading from a video file use its fps
             if self.urlIsFile:
-                start = time.time()
-            now = datetime.datetime.now()
-            # Make sure thread doesn't hang in case of socket time out, etc.
-            try:
+                self.fps
+                fpsTime = 1 / float(self.fps)
+            while(self.frameOk):
+                if self.urlIsFile:
+                    start = time.time()
+                now = datetime.datetime.now()
                 frame = self.framePluginInstance.getFrame()
-                self.frameOk = len(frame) > 0
+                if frame is not None:
+                    self.frameOk = len(frame) > 0
+                else:
+                    self.frameOk = False
                 if self.frameOk:
                     # Make sure we do not run out of memory
                     if len(frameBuf) > self.appConfig.frameBufMax:
@@ -93,8 +96,11 @@ class videoloop(observer.observer, observable.observable):
                     # Try to keep FPS for files consistent otherwise frameBufMax will be reached
                     if elapsed < fpsTime:
                         time.sleep(fpsTime - elapsed)
-            except:
-                self.frameOk = False
+        except:
+            self.frameOk = False
+            # Add timestamp to errors
+            sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
+            traceback.print_exc(file=sys.stderr)
         self.logger.info("readFrames thread exit")
         
     def writeFrames(self):
@@ -111,7 +117,10 @@ class videoloop(observer.observer, observable.observable):
                     # 1/4 of FPS sleep
                     time.sleep(1.0 / (self.fps * 4))
             except:
-                self.recording = False                    
+                self.recording = False
+                # Add timestamp to errors
+                sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
+                traceback.print_exc(file=sys.stderr)
         # Write off write buffer
         self.logger.info("Writing %d frames of write buffer" % len(self.writeBuf))
         for f in self.writeBuf[1:]:
@@ -188,54 +197,53 @@ class videoloop(observer.observer, observable.observable):
 
     def run(self):
         """Video processing loop"""
-        frameWidth = self.framePluginInstance.frameWidth
-        frameHeight = self.framePluginInstance.frameHeight
-        # See if plug in has FPS set
-        if self.framePluginInstance.fps == 0:
-            self.fps = self.appConfig.fps
-        elif self.appConfig.fps == 0:
-            self.fps = self.framePluginInstance.fps
-        else:
-            self.fps = self.appConfig.fps
-        if frameWidth > 0 and frameHeight > 0:
-            # Analyze only ~3 FPS which works well with this type of detection
-            frameToCheck = int(self.fps / 4)
-            # 0 means check every frame
-            if frameToCheck < 1:
-                frameToCheck = 0
-            skipCount = 0
-            elapsedFrames = 0    
-            # Frame buffer
-            frameBuf = []
-            # Kick off readFrames thread
-            readFramesThread = threading.Thread(target=self.readFrames, args=(frameBuf,))
-            readFramesThread.start()
-            # Wait until frame buffer is full
-            self.waitOnFrameBuf(frameBuf)
-            # Motion detection object
-            self.motion = motiondet.motiondet(self.appConfig, frameBuf[0][0], self.logger)
-            # Observe motion events
-            self.motion.addObserver(self)
-            # Load detect plugin
-            if self.appConfig.detectPlugin != "":
-                self.logger.info("Loading detection plugin: %s" % self.appConfig.detectPlugin)
-                self.detectPluginInstance = self.getPlugin(moduleName=self.appConfig.detectPlugin, appConfig = self.appConfig, image = frameBuf[0][0], logger = self.logger)
+        try:
+            frameWidth = self.framePluginInstance.frameWidth
+            frameHeight = self.framePluginInstance.frameHeight
+            # See if plug in has FPS set
+            if self.framePluginInstance.fps == 0:
+                self.fps = self.appConfig.fps
+            elif self.appConfig.fps == 0:
+                self.fps = self.framePluginInstance.fps
+            else:
+                self.fps = self.appConfig.fps
+            if frameWidth > 0 and frameHeight > 0:
+                # Analyze only ~3 FPS which works well with this type of detection
+                frameToCheck = int(self.fps / 4)
+                # 0 means check every frame
+                if frameToCheck < 1:
+                    frameToCheck = 0
+                skipCount = 0
+                elapsedFrames = 0    
+                # Frame buffer
+                frameBuf = []
+                # Kick off readFrames thread
+                readFramesThread = threading.Thread(target=self.readFrames, args=(frameBuf,))
+                readFramesThread.start()
+                # Wait until frame buffer is full
+                self.waitOnFrameBuf(frameBuf)
+                # Motion detection object
+                self.motion = motiondet.motiondet(self.appConfig, frameBuf[0][0], self.logger)
                 # Observe motion events
-                self.detectPluginInstance.addObserver(self)
-            if self.appConfig.videoloopPlugins is not None:
-                # Load videoloop plugins
-                self.videoloopPluginList = []
-                for item in self.appConfig.videoloopPlugins:
-                    self.logger.info("Loading videoloop plugin: %s" % item)
-                    pluginInstance = self.getPlugin(moduleName=item, appConfig = self.appConfig, logger = self.logger)
-                    # Observe videoloop events
-                    self.addObserver(pluginInstance)
-                    self.videoloopPluginList.append(pluginInstance)
-            start = time.time()
-            # Loop as long as there are frames in the buffer
-            while(len(frameBuf) > 0):
-                # Make sure thread doesn't hang in case of exception
-                try:
+                self.motion.addObserver(self)
+                # Load detect plugin
+                if self.appConfig.detectPlugin != "":
+                    self.logger.info("Loading detection plugin: %s" % self.appConfig.detectPlugin)
+                    self.detectPluginInstance = self.getPlugin(moduleName=self.appConfig.detectPlugin, appConfig = self.appConfig, image = frameBuf[0][0], logger = self.logger)
+                    # Observe motion events
+                    self.detectPluginInstance.addObserver(self)
+                if self.appConfig.videoloopPlugins is not None:
+                    # Load videoloop plugins
+                    self.videoloopPluginList = []
+                    for item in self.appConfig.videoloopPlugins:
+                        self.logger.info("Loading videoloop plugin: %s" % item)
+                        pluginInstance = self.getPlugin(moduleName=item, appConfig = self.appConfig, logger = self.logger)
+                        # Observe videoloop events
+                        self.addObserver(pluginInstance)
+                        self.videoloopPluginList.append(pluginInstance)
+                start = time.time()
+                # Loop as long as there are frames in the buffer
+                while(len(frameBuf) > 0):
                     # Calc FPS    
                     elapsedFrames += 1
                     curTime = time.time()
@@ -274,17 +282,19 @@ class videoloop(observer.observer, observable.observable):
                                     thread.start()
                     else:
                         skipCount -= 1
-                except:
-                    frameBuf = []                        
-                # Add frame if recording
-                if self.recording and len(self.historyBuf) > 0:
-                        # Write first image in history buffer (the oldest)
-                        self.writeBuf.append(self.historyBuf[0])
-        # If exiting while recording then stop recording                
-        if self.recording:
-            self.recording = False
-        # Close capture
-        self.framePluginInstance.close()
+                    # Add frame if recording
+                    if self.recording and len(self.historyBuf) > 0:
+                            # Write first image in history buffer (the oldest)
+                            self.writeBuf.append(self.historyBuf[0])
+            # If exiting while recording then stop recording                
+            if self.recording:
+                self.recording = False
+            # Close capture
+            self.framePluginInstance.close()
+        except:
+            # Add timestamp to errors
+            sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
+            traceback.print_exc(file=sys.stderr)
                 
 if __name__ == "__main__":
     try:
