@@ -2,8 +2,10 @@
 
 Motion Detector takes input from video sources such as network cameras, web cams, files, etc. and makes intelligent decisions based on analyzing frames. Motion Detector uses a plugin based event driven architecture that allows you to extend functionality easily. It is deployed as an intelligent security system, but can be configured for your particular scenario. Reasons to use Motion Detector:
 * You have been disappointed with over priced proprietary cameras which require subscriptions to store your data.
-* You have some Linux skills and can follow directions then you can build a powerful low priced smart camera.
-* You are a developer and SBC tinkerer then the possibilities are endless.
+* You have been disappointed with other surveillance software being Windows only (iSpy), woefully outdated (motion) or requiring a special OS image (KERBEROS.IO).
+* You want to use advanced Computer Vision and Machine Learning algorithms.
+* There is no free/paid version, lame accounts to sign up for, etc. If you want extra features you can request them or write them yourself.
+* If you are a developer and SBC tinkerer then the possibilities are endless.
 
 The primary focus of Motion Detector is efficient video processing, fault tolerance and extensibility. While most security themed video monitoring is based on motion detection, Motion Detector places a high value on Computer Vision for intelligent frame analysis such as HOG pedestrian and Haar cascade multi-scale detection.
 
@@ -18,14 +20,16 @@ Using the pre-trained Haar Cascade method works better when objects are smaller:
 It's important to use the right detectors and configuration to achieve the desired results.
 
 ### Features
-* Motion Detector has been tested on SBCs such as Raspberry Pi, NanoPi M1, CHIP, ODROID C1/C2/XU4, Pine A64, etc. to create compact smart cameras.
+* Motion Detector has been tested on SBCs such as Raspberry Pi, NanoPi M1, CHIP, ODROID C1/C2/XU4, Pine A64, etc. to create compact smart cameras. That means you can run Motion Detector on a single core $9 [CHIP](https://github.com/sgjava/opencv-chip) SBC and still use pedestrian detection without any hardware acceleration.
+* Threading and subprocess based architecture allows consistent FPS while processing frames, writing video files, moving files to remote location, etc. all concurrently.
 * Run multiple copies on a central server for IP based "dumb" cameras.
 * Supports several types of video inputs including USB and IP (wired/wireless) cameras, video files, etc.
 * Fault tolerant architecture ensures buggy camera firmware or poor network connectivity will not derail video processing.
 * High performance frame capture plugins including Python socket based MJPEG decoder.
 * Threshold based motion detection, ignore mask, multiple object marking and video recording.
-* Pedestrian and human feature detection
-* Add your own plugins
+* Pedestrian and human feature detection.
+* Add your own plugins.
+* Single configuration file.
 
 ### Requirements
 * X86, X86_64, ARMv7 or ARMv8 version of Ubuntu 16.04 or Debian 8 (will most likely work on other Linux based operating systems as well)
@@ -146,10 +150,6 @@ environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32
    
 * `sudo supervisorctl update`
 * `tail /var/log/supervisor/mjpg-streamer.log`
-
-If you wish to use the SCP plugin then you should generate ssh keypair, so you do not have to pass passwords around or save them in a file. It's handy to scp video files to a central server or cloud storage after detection.
-* ssh-keygen
-* ssh-copy-id user@host
 
 ### FreeBSD License
 Copyright (c) Steven P. Goldsmith
