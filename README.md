@@ -151,6 +151,15 @@ environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32
 * `sudo supervisorctl update`
 * `tail /var/log/supervisor/mjpg-streamer.log`
 
+### Camera health check
+
+If you want to monitor the health of Motion Detector you just need to look at health.txt timestamp. For example, if I want to use Zabbix agent I could add the following to zabbix_agentd.conf
+
+```
+# Camera health
+UserParameter=camhealth,if test `find "/home/servadmin/motion/health.txt" -mmin -2`; then echo "1"; else echo "0"; fi
+```
+
 ### FreeBSD License
 Copyright (c) Steven P. Goldsmith
 
