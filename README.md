@@ -126,7 +126,7 @@ user = <username>
 autostart = true  
 autorestart = true  
 stdout_logfile = /var/log/supervisor/videoloop.log  
-stderr_logfile = /var/log/supervisor/videoloop.log
+stderr_logfile = /var/log/supervisor/videoloop_err.log
 environment = PYTHONPATH=/home/<username>/motiondetector
 ```
    
@@ -144,7 +144,7 @@ user = <username>
 autostart = true  
 autorestart = true  
 stdout_logfile = /var/log/supervisor/mjpg-streamer.log  
-stderr_logfile = /var/log/supervisor/mjpg-streamer.log  
+stderr_logfile = /var/log/supervisor/mjpg-streamer_err.log  
 environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32
 ```
    
