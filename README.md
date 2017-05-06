@@ -144,8 +144,8 @@ user = <username>
 autostart = true  
 autorestart = true  
 stdout_logfile = /var/log/supervisor/mjpg-streamer.log  
-stderr_logfile = /var/log/supervisor/mjpg-streamer_err.log  
-environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32
+stderr_logfile = /var/log/supervisor/mjpg-streamer.log  
+environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32 (or lib64 for 64 bit)
 ```
    
 * `sudo supervisorctl update`
