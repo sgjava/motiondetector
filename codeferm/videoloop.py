@@ -135,7 +135,7 @@ class videoloop(observer.observer, observable.observable):
         for f in self.historyBuf[1:]:
             self.videoWriter.write(f[0])
             self.recFrameNum += 1
-        del self.videoWriter
+        self.videoWriter.release()
         self.logger.info("Stop recording: %d frames" % (self.recFrameNum-1))
         # Write off history image
         if self.appConfig.historyImage:
