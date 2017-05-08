@@ -128,6 +128,8 @@ class videoloop(observer.observer, observable.observable):
         for f in self.writeBuf[1:]:
             self.videoWriter.write(f[0])
             self.recFrameNum += 1
+        # Empty write buffer
+        self.writeBuf = []
         # Write off write buffer
         self.logger.info("Writing %d frames of history buffer" % len(self.historyBuf))
         for f in self.historyBuf[1:]:
