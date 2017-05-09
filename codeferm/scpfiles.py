@@ -13,6 +13,8 @@ import os, subprocess, threading, observer
 class scpfiles(observer.observer):
     """SCP files in subprocess.
     
+    Only execute next command if previous command worked.
+    
     """
     
     def __init__(self, appConfig, logger):
