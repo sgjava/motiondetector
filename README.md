@@ -4,6 +4,7 @@ Motion Detector takes input from video sources such as network cameras, web cams
 * You have been disappointed with over priced proprietary cameras which require subscriptions to store your data.
 * You have been disappointed with other surveillance software being Windows only (iSpy), woefully outdated (motion) or requiring a special OS image (KERBEROS.IO).
 * You want to use advanced Computer Vision and Machine Learning algorithms.
+* You want a secure camera [New IoT malware targets 100,000 IP cameras via known flaw](http://www.csoonline.com/article/3195825/security/new-iot-malware-targets-100000-ip-cameras-via-known-flaw.html) that does not rely on crappy proprietary firmware.
 * There is no free/paid version, lame accounts to sign up for, etc. If you want extra features you can request them or write them yourself.
 * If you are a developer and SBC tinkerer then the possibilities are endless.
 
