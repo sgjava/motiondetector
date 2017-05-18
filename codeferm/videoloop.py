@@ -270,6 +270,7 @@ class videoloop(observer.observer, observable.observable):
                     if skipCount <= 0:
                         skipCount = frameToCheck
                         resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = self.motion.detect(frame, timestamp)
+                        raise ValueError("forced exception")
                         if self.appConfig.historyImage and self.recording:
                             # Update history image
                             self.historyImg = numpy.bitwise_or(bwImg, self.historyImg)                    
@@ -305,6 +306,12 @@ if __name__ == "__main__":
             fileName = os.path.expanduser(sys.argv[1])
         videoLoop = videoloop(fileName)
         videoLoop.run()
+        videoLoop.logger.info("Waiting for all threads to finish")
+        mainThread = threading.currentThread()
+        for t in threading.enumerate():
+            if t is mainThread:
+                continue
+            t.join()        
         videoLoop.logger.info("Process exit")
     except:
         # Add timestamp to errors
