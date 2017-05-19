@@ -1,6 +1,6 @@
 ![Title](images/title.png)
 
-Motion Detector takes input from video sources such as network cameras, web cams, files, etc. and makes intelligent decisions based on analyzing frames. Motion Detector uses a plugin based event driven architecture that allows you to extend functionality easily. It is deployed as an intelligent security system, but can be configured for your particular scenario. Reasons to use Motion Detector:
+Motion Detector takes input from video sources such as network cameras, web cams, files, etc. and makes intelligent decisions based on analyzing frames. Motion Detector uses a plugin based event driven architecture that allows you to easily extend functionality. It is deployed as an intelligent security system, but can be configured for your particular scenario. Reasons to use Motion Detector:
 * You have been disappointed with over priced proprietary cameras which require subscriptions to store your data.
 * You have been disappointed with other surveillance software being Windows only (iSpy), woefully outdated (motion) or requiring a special OS image (KERBEROS.IO).
 * You want to use advanced Computer Vision and Machine Learning algorithms.
