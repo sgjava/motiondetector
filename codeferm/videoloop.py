@@ -295,6 +295,11 @@ class videoloop(observer.observer, observable.observable):
             # Add timestamp to errors
             sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
             traceback.print_exc(file=sys.stderr)
+            # If exception while recording then stop recording                
+            if self.recording:
+                self.recording = False
+            # Close capture
+            self.framePluginInstance.close()
                 
 if __name__ == "__main__":
     try:
@@ -305,12 +310,6 @@ if __name__ == "__main__":
             fileName = os.path.expanduser(sys.argv[1])
         videoLoop = videoloop(fileName)
         videoLoop.run()
-        videoLoop.logger.info("Waiting for all threads to finish")
-        mainThread = threading.currentThread()
-        for t in threading.enumerate():
-            if t is mainThread:
-                continue
-            t.join()        
         videoLoop.logger.info("Process exit")
     except:
         # Add timestamp to errors
