@@ -270,6 +270,8 @@ class videoloop(observer.observer, observable.observable):
                     if skipCount <= 0:
                         skipCount = frameToCheck
                         resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = self.motion.detect(frame, timestamp)
+                        if self.recording:
+                            raise ValueError("Forced exception")
                         if self.appConfig.historyImage and self.recording:
                             # Update history image
                             self.historyImg = numpy.bitwise_or(bwImg, self.historyImg)                    
@@ -295,11 +297,6 @@ class videoloop(observer.observer, observable.observable):
             # Add timestamp to errors
             sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
             traceback.print_exc(file=sys.stderr)
-            # If exception while recording then stop recording                
-            if self.recording:
-                self.recording = False
-            # Close capture
-            self.framePluginInstance.close()
                 
 if __name__ == "__main__":
     try:
@@ -310,6 +307,9 @@ if __name__ == "__main__":
             fileName = os.path.expanduser(sys.argv[1])
         videoLoop = videoloop(fileName)
         videoLoop.run()
+        # Make sure read/write threads exit
+        videoLoop.frameOk = False
+        videoLoop.recording = False
         videoLoop.logger.info("Process exit")
     except:
         # Add timestamp to errors
