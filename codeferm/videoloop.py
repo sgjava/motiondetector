@@ -270,8 +270,6 @@ class videoloop(observer.observer, observable.observable):
                     if skipCount <= 0:
                         skipCount = frameToCheck
                         resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = self.motion.detect(frame, timestamp)
-                        if self.recording:
-                            raise ValueError("Forced exception")
                         if self.appConfig.historyImage and self.recording:
                             # Update history image
                             self.historyImg = numpy.bitwise_or(bwImg, self.historyImg)                    
