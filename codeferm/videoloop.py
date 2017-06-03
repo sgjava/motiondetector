@@ -107,7 +107,7 @@ class videoloop(observer.observer, observable.observable):
         
     def writeFrames(self):
         """Write frames"""
-        while(self.recording):
+        while(self.recording and self.frameOk):
             # Make sure thread doesn't hang in case of write exception
             try:
                 if len(self.writeBuf) > 0:
