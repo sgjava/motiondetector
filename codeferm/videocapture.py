@@ -10,6 +10,7 @@ All rights reserved.
 
 import re, cv2, framebase
 
+
 class videocapture(framebase.framebase):
     """cv2.VideoCapture based frame grabber.
     

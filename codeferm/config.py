@@ -10,6 +10,7 @@ All rights reserved.
 
 import ConfigParser, cv2
 
+
 class config(object):
     """Configuration class.
     

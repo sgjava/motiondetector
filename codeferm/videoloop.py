@@ -10,6 +10,7 @@ All rights reserved.
 
 import logging, sys, os, traceback, time, datetime, importlib, threading, cv2, numpy, config, motiondet, observer, observable
 
+
 class videoloop(observer.observer, observable.observable):
     """Main class used to acquire and process frames.
     
@@ -41,7 +42,7 @@ class videoloop(observer.observer, observable.observable):
             self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.framePlugin, url=self.appConfig.url)
             self.framePluginInstance.setProperties(self.appConfig.videoCaptureProperties)
         else:
-            self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.framePlugin, url=self.appConfig.url, timeout = self.appConfig.socketTimeout)
+            self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.framePlugin, url=self.appConfig.url, timeout=self.appConfig.socketTimeout)
         self.logger.info("%dx%d, fps: %d" % (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight, self.framePluginInstance.fps))
         self.videoWriter = None
         # Frame buffer
@@ -136,7 +137,7 @@ class videoloop(observer.observer, observable.observable):
             self.videoWriter.write(f[0])
             self.recFrameNum += 1
         self.videoWriter.release()
-        self.logger.info("Stop recording: %d frames" % (self.recFrameNum-1))
+        self.logger.info("Stop recording: %d frames" % (self.recFrameNum - 1))
         # Write off history image
         if self.appConfig.historyImage:
             # Save history image ready for ignore mask editing
@@ -229,7 +230,7 @@ class videoloop(observer.observer, observable.observable):
                 # Load detect plugin
                 if self.appConfig.detectPlugin != "":
                     self.logger.info("Loading detection plugin: %s" % self.appConfig.detectPlugin)
-                    self.detectPluginInstance = self.getPlugin(moduleName=self.appConfig.detectPlugin, appConfig = self.appConfig, image = self.frameBuf[0][0], logger = self.logger)
+                    self.detectPluginInstance = self.getPlugin(moduleName=self.appConfig.detectPlugin, appConfig=self.appConfig, image=self.frameBuf[0][0], logger=self.logger)
                     # Observe motion events
                     self.detectPluginInstance.addObserver(self)
                 if self.appConfig.videoloopPlugins is not None:
@@ -237,7 +238,7 @@ class videoloop(observer.observer, observable.observable):
                     self.videoloopPluginList = []
                     for item in self.appConfig.videoloopPlugins:
                         self.logger.info("Loading videoloop plugin: %s" % item)
-                        pluginInstance = self.getPlugin(moduleName=item, appConfig = self.appConfig, logger = self.logger)
+                        pluginInstance = self.getPlugin(moduleName=item, appConfig=self.appConfig, logger=self.logger)
                         # Observe videoloop events
                         self.addObserver(pluginInstance)
                         self.videoloopPluginList.append(pluginInstance)

@@ -10,6 +10,7 @@ All rights reserved.
 
 import os, cv2, detectbase
 
+
 class cascadedet(detectbase.detectbase):
     """Cascade classifier detector using ROI.
     
@@ -38,8 +39,8 @@ class cascadedet(detectbase.detectbase):
                 # Filter by minimum size 
                 if rw > self.appConfig.minWidth and rh > self.appConfig.minHeight:
                     # Only add rects with different size
-                    if ((rw,rh)) not in items:
-                        items.add((rw,rh))
+                    if ((rw, rh)) not in items:
+                        items.add((rw, rh))
                         filteredRects.append(r)
             if len(filteredRects) > 0:
                 filteredLocations.append(filteredRects)
@@ -87,7 +88,7 @@ class cascadedet(detectbase.detectbase):
                     self.markRoi(image, locationsList, foundLocationsList, (255, 0, 0), 2)
                                 # Let listening objects know pedestrian detected      
                     self.notifyObservers(event=self.appConfig.cascadeDetected, timestamp=timestamp)
-                #self.logger.debug("Cascade detected locations: %s, weights: %s" % (foundLocationsList, foundWeightsList))
+                # self.logger.debug("Cascade detected locations: %s, weights: %s" % (foundLocationsList, foundWeightsList))
         return locationsList, foundLocationsList, foundWeightsList
     
     def markRoi(self, image, locList, foundLocsList, boxColor, boxThickness):

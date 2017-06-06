@@ -10,6 +10,7 @@ All rights reserved.
 
 import os, cv2, numpy, detectbase
 
+
 class motiondet(detectbase.detectbase):
     """Motion detection image processor.
     

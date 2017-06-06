@@ -10,6 +10,7 @@ All rights reserved.
 
 import abc
 
+
 class framebase(object):
     """Frame grabber abstract base class.
     

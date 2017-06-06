@@ -10,6 +10,7 @@ All rights reserved.
 
 import socket, urlparse, base64, numpy, cv2, framebase
 
+
 class mjpegclient(framebase.framebase):
     """MJPEG frame grabber class.
     

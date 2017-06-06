@@ -10,6 +10,7 @@ All rights reserved.
 
 import abc, os, cv2, observable
 
+
 class detectbase(observable.observable):
     """Detect abstract base class.
     
