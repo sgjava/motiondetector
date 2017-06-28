@@ -12,7 +12,7 @@ import logging, sys, os, traceback, time, datetime, importlib, threading, cv2, n
 
 
 class videoloop(observer.observer, observable.observable):
-    """Main class used to acquire and process frames.
+    """This class used to acquire and process frames.
     
     The idea here is to keep things moving as fast as possible. Anything that
     would slow down frame processing should be off loaded to a thread or
@@ -43,7 +43,6 @@ class videoloop(observer.observer, observable.observable):
             self.framePluginInstance.setProperties(self.appConfig.videoCaptureProperties)
         else:
             self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.framePlugin, url=self.appConfig.url, timeout=self.appConfig.socketTimeout)
-        self.logger.info("%dx%d, fps: %d" % (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight, self.framePluginInstance.fps))
         self.videoWriter = None
         # Frame buffer
         self.frameBuf = []
@@ -203,13 +202,12 @@ class videoloop(observer.observer, observable.observable):
     def run(self):
         """Video processing loop"""
         try:
-            # See if plug in has FPS set
-            if self.framePluginInstance.fps == 0:
-                self.fps = self.appConfig.fps
-            elif self.appConfig.fps == 0:
+            # Set FPS
+            if self.appConfig.fps == 0:
                 self.fps = self.framePluginInstance.fps
             else:
                 self.fps = self.appConfig.fps
+            self.logger.info("%dx%d, fps: %d" % (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight, self.fps))
             if self.framePluginInstance.frameWidth > 0 and self.framePluginInstance.frameHeight > 0:
                 # Analyze only ~3 FPS which works well with this type of detection
                 frameToCheck = int(self.fps / 4)
