@@ -124,6 +124,7 @@ To make Motion Detector more resilient it's wise to run it with a process contro
 command = python videoloop.py /path/to/your/config.ini
 directory = /home/<username>/motiondetector/codeferm
 user = <username>
+startsecs = 0
 autostart = true  
 autorestart = true  
 stdout_logfile = /var/log/supervisor/videoloop.log  
@@ -142,6 +143,7 @@ If you plan on using mjpg-streamer have Supervisor take care of that as well.
 command = mjpg_streamer -i "/usr/local/lib/input_uvc.so -n -f 5 -r 1280x720" -o "/usr/local/lib/output_http.so -w /usr/local/www"
 directory = /home/<username>
 user = <username>
+startsecs = 0
 autostart = true  
 autorestart = true  
 stdout_logfile = /var/log/supervisor/mjpg-streamer.log  
