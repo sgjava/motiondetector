@@ -48,7 +48,7 @@ class pedestriandet(detectbase.detectbase):
                 filteredFoundWeights.append(filteredWeights)
         return filteredFoundLocations, filteredFoundWeights
     
-    def detect(self, image, resizeImg, timestamp, locations):
+    def detect(self, image, resizeImg, grayImg, timestamp, locations):
         """Check ROI for pedestrians"""
         locationsList = []
         foundLocationsList = []

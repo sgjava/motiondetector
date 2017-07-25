@@ -192,6 +192,8 @@ class videoloop(observer.observer, observable.observable):
             self.logger.debug("Pedestrian detected")
         elif kwargs["event"] == self.appConfig.cascadeDetected:
             self.logger.debug("Cascade detected")
+        elif kwargs["event"] == self.appConfig.circleDetected:
+            self.logger.debug("Circle detected")
 
     def waitOnFrameBuf(self):
         """Wait until frame buffer is full"""
@@ -273,7 +275,7 @@ class videoloop(observer.observer, observable.observable):
                             # Update history image
                             self.historyImg = numpy.bitwise_or(bwImg, self.historyImg)                    
                         if self.appConfig.detectPlugin != "":
-                            locationsList, foundLocationsList, foundWeightsList = self.detectPluginInstance.detect(frame, resizeImg, timestamp, movementLocationsFiltered)
+                            locationsList, foundLocationsList, foundWeightsList = self.detectPluginInstance.detect(frame, resizeImg, grayImg, timestamp, movementLocationsFiltered)
                             if len(foundLocationsList) > 0 and self.recording:
                                 # Save off detected elapsedFrames
                                 if self.appConfig.saveFrames:

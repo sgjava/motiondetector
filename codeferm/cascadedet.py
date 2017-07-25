@@ -65,7 +65,7 @@ class cascadedet(detectbase.detectbase):
                 filteredFoundWeights.append(weight)
         return filteredFoundLocations, filteredFoundWeights
     
-    def detect(self, image, resizeImg, timestamp, locations):
+    def detect(self, image, resizeImg, grayImg, timestamp, locations):
         """Cascade detect ROI"""
         locationsList = []
         foundLocationsList = []

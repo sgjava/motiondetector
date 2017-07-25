@@ -19,7 +19,7 @@ class config(object):
     """
     
     # Event type attributes
-    motionStart, motionStop, pedestrianDetected, cascadeDetected, startRecording, stopRecording, healthCheck = range(0, 7)    
+    motionStart, motionStop, pedestrianDetected, cascadeDetected, circleDetected, startRecording, stopRecording, healthCheck = range(0, 8)    
 
     def __init__(self, fileName):
         """ Read configuration from INI file """
@@ -72,6 +72,14 @@ class config(object):
         self.minWidth = parser.getint("cascade", "minWidth")
         self.minHeight = parser.getint("cascade", "minHeight")
         self.minCascadeWeight = parser.getint("cascade", "minCascadeWeight")
+        # Set Hough Circles related attributes
+        self.methodType = int(eval(parser.get("hough", "methodType")))
+        self.dp = parser.getint("hough", "dp")
+        self.minDist = parser.getint("hough", "minDist")
+        self.param1 = parser.getint("hough", "param1")
+        self.param2 = parser.getint("hough", "param2")
+        self.minRadius = parser.getint("hough", "minRadius")
+        self.maxRadius = parser.getint("hough", "maxRadius")
         # Set SCP related attributes
         self.hostName = parser.get("scp", "hostName")
         self.userName = parser.get("scp", "userName")
