@@ -28,7 +28,7 @@ class healthcheck(observer.observer):
         """Verify videoloop health"""
         if len(frameBuf) <= fps * 2 and frameOk:
             self.logger.info("Health OK")
-            fileName = os.path.expanduser(self.appConfig.healthFileName)
+            fileName = os.path.expanduser(self.appConfig.health['healthFileName'])
             fileDir = os.path.dirname(fileName)
             # Create dir if it doesn"t exist
             if not os.path.exists(fileDir):

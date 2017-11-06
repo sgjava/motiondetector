@@ -57,7 +57,7 @@ class pedestriandet(detectbase.detectbase):
             # Make sure ROI is big enough for detector
             if w > 63 and h > 127:
                 imageRoi = resizeImg[y:y + h, x:x + w]
-                foundLocations, foundWeights = self.hog.detectMultiScale(imageRoi, winStride=self.appConfig.winStride, padding=self.appConfig.padding, scale=self.appConfig.scale0)
+                foundLocations, foundWeights = self.hog.detectMultiScale(imageRoi, winStride=self.appConfig.pedestrian['winStride'], padding=self.appConfig.pedestrian['padding'], scale=self.appConfig.pedestrian['scale0'])
                 if len(foundLocations) > 0:
                     locationsList.append((x, y, w, h))
                     foundLocationsList.append(foundLocations)
@@ -65,13 +65,13 @@ class pedestriandet(detectbase.detectbase):
         # Any hits?
         if len(foundLocationsList) > 0:
             # Only filter if minWeight > 0.0
-            if self.appConfig.minHogWeight > 0.0:
+            if self.appConfig.pedestrian['minHogWeight'] > 0.0:
                 # Filter found location by weight
-                foundLocationsList, foundWeightsList = self.filterByWeight(foundLocationsList, foundWeightsList, self.appConfig.minHogWeight)
+                foundLocationsList, foundWeightsList = self.filterByWeight(foundLocationsList, foundWeightsList, self.appConfig.pedestrian['minHogWeight'])
             # Any hits after possible filtering?
             if len(foundLocationsList) > 0:
                 self.pedestrianDetected = True
-                if self.appConfig.mark:
+                if self.appConfig.camera['mark']:
                     # Draw rectangle around found objects
                     self.markRectWeight(image, locationsList, foundLocationsList, foundWeightsList, (255, 0, 0), 2)
                 # self.logger.debug("Pedestrian detected locations: %s" % foundLocationsList)

@@ -14,7 +14,7 @@ import ConfigParser, cv2
 class config(object):
     """Configuration class.
     
-    This make it easy to pass around app configuration.
+    This makes it easy to pass around app configuration.
 
     """
     
@@ -26,65 +26,64 @@ class config(object):
         parser = ConfigParser.SafeConfigParser()
         # Read configuration file
         parser.read(fileName)
-        """Configure from INI file"""
         # Logging related attributes
-        self.loggingLevel = parser.get("logging", "level")
-        self.loggingFormatter = parser.get("logging", "formatter") 
+        self.logging = {'level' : parser.get("logging", "level"),
+                        'formatter' : parser.get("logging", "formatter")}
         # Set camera related data attributes
-        self.cameraName = parser.get("camera", "name")
-        self.framePlugin = parser.get("camera", "framePlugin")
-        self.videoCaptureProperties = eval(parser.get("camera", "videoCaptureProperties"))
-        self.videoloopPlugins = eval(parser.get("camera", "videoloopPlugins"), {}, {})
-        self.url = parser.get("camera", "url")
-        self.socketTimeout = parser.getint("camera", "socketTimeout")
-        self.resizeWidthDiv = parser.getint("camera", "resizeWidthDiv")
-        self.detectPlugin = parser.get("camera", "detectPlugin")
-        self.fpsInterval = parser.getfloat("camera", "fpsInterval")
-        self.fps = parser.getint("camera", "fps")
-        self.frameBufMax = parser.getint("camera", "frameBufMax")
-        self.fourcc = parser.get("camera", "fourcc")
-        self.recordFileExt = parser.get("camera", "recordFileExt")
-        self.recordDir = parser.get("camera", "recordDir")
-        self.mark = parser.getboolean("camera", "mark")
-        self.saveFrames = parser.getboolean("camera", "saveFrames")
+        self.camera = {'name' :  parser.get("camera", "name"),
+                       'framePlugin' :  parser.get("camera", "framePlugin"),
+                       'videoCaptureProperties' :  eval(parser.get("camera", "videoCaptureProperties")),
+                       'videoloopPlugins' :  eval(parser.get("camera", "videoloopPlugins"), {}, {}),
+                       'url' :  parser.get("camera", "url"),
+                       'socketTimeout' :  parser.getint("camera", "socketTimeout"),
+                       'resizeWidthDiv' :  parser.getint("camera", "resizeWidthDiv"),
+                       'detectPlugin' :  parser.get("camera", "detectPlugin"),
+                       'fpsInterval' :  parser.getfloat("camera", "fpsInterval"),
+                       'fps' :  parser.getint("camera", "fps"),
+                       'frameBufMax' :  parser.getint("camera", "frameBufMax"),
+                       'fourcc' :  parser.get("camera", "fourcc"),
+                       'recordFileExt' :  parser.get("camera", "recordFileExt"),
+                       'recordDir' :  parser.get("camera", "recordDir"),
+                       'mark' :  parser.getboolean("camera", "mark"),
+                       'saveFrames' :  parser.getboolean("camera", "saveFrames")}
         # Set motion related data attributes
-        self.ignoreMask = parser.get("motion", "ignoreMask")
-        self.kSize = eval(parser.get("motion", "kSize"), {}, {})
-        self.alpha = parser.getfloat("motion", "alpha")
-        self.blackThreshold = parser.getint("motion", "blackThreshold")
-        self.maxChange = parser.getfloat("motion", "maxChange")
-        self.startThreshold = parser.getfloat("motion", "startThreshold")
-        self.stopThreshold = parser.getfloat("motion", "stopThreshold")
-        self.historyImage = parser.getboolean("motion", "historyImage")
-        # Set contour related data attributes
-        self.dilateAmount = parser.getint("motion", "dilateAmount")
-        self.erodeAmount = parser.getint("motion", "erodeAmount")
+        self.motion = {'ignoreMask' : parser.get("motion", "ignoreMask"),
+                       'kSize' : eval(parser.get("motion", "kSize"), {}, {}),
+                       'alpha' : parser.getfloat("motion", "alpha"),
+                       'blackThreshold' : parser.getint("motion", "blackThreshold"),
+                       'maxChange' : parser.getfloat("motion", "maxChange"),
+                       'startThreshold' : parser.getfloat("motion", "startThreshold"),
+                       'stopThreshold' : parser.getfloat("motion", "stopThreshold"),
+                       'historyImage' : parser.getboolean("motion", "historyImage"),
+                       # Set contour related data attributes
+                       'dilateAmount' : parser.getint("motion", "dilateAmount"),
+                       'erodeAmount' : parser.getint("motion", "erodeAmount")}
         # Set pedestrian detect related data attributes
-        self.hitThreshold = parser.getfloat("pedestrian", "hitThreshold")
-        self.winStride = eval(parser.get("pedestrian", "winStride"), {}, {})
-        self.padding = eval(parser.get("pedestrian", "padding"), {}, {})
-        self.scale0 = parser.getfloat("pedestrian", "scale0")
-        self.minHogWeight = parser.getfloat("pedestrian", "minHogWeight")
+        self.pedestrian = {'hitThreshold' : parser.getfloat("pedestrian", "hitThreshold"),
+                           'winStride' : eval(parser.get("pedestrian", "winStride"), {}, {}),
+                           'padding' : eval(parser.get("pedestrian", "padding"), {}, {}),
+                           'scale0' : parser.getfloat("pedestrian", "scale0"),
+                           'minHogWeight' : parser.getfloat("pedestrian", "minHogWeight")}
         # Set cascade related data attributes
-        self.cascadeFile = parser.get("cascade", "cascadeFile")
-        self.scaleFactor = parser.getfloat("cascade", "scaleFactor")
-        self.minNeighbors = parser.getint("cascade", "minNeighbors")
-        self.minWidth = parser.getint("cascade", "minWidth")
-        self.minHeight = parser.getint("cascade", "minHeight")
-        self.minCascadeWeight = parser.getint("cascade", "minCascadeWeight")
+        self.cascade = {'cascadeFile' : parser.get("cascade", "cascadeFile"),
+                        'scaleFactor' : parser.getfloat("cascade", "scaleFactor"),
+                        'minNeighbors' : parser.getint("cascade", "minNeighbors"),
+                        'minWidth' : parser.getint("cascade", "minWidth"),
+                        'minHeight' : parser.getint("cascade", "minHeight"),
+                        'minCascadeWeight' : parser.getint("cascade", "minCascadeWeight")}
         # Set Hough Circles related attributes
-        self.methodType = int(eval(parser.get("hough", "methodType")))
-        self.dp = parser.getint("hough", "dp")
-        self.minDist = parser.getint("hough", "minDist")
-        self.param1 = parser.getint("hough", "param1")
-        self.param2 = parser.getint("hough", "param2")
-        self.minRadius = parser.getint("hough", "minRadius")
-        self.maxRadius = parser.getint("hough", "maxRadius")
+        self.hough = {'methodType' : int(eval(parser.get("hough", "methodType"))),
+                      'dp': parser.getint("hough", "dp"),
+                      'minDist': parser.getint("hough", "minDist"),
+                      'param1': parser.getint("hough", "param1"),
+                      'param2': parser.getint("hough", "param2"),
+                      'minRadius': parser.getint("hough", "minRadius"),
+                      'maxRadius': parser.getint("hough", "maxRadius")}
         # Set SCP related attributes
-        self.hostName = parser.get("scp", "hostName")
-        self.userName = parser.get("scp", "userName")
-        self.remoteDir = parser.get("scp", "remoteDir")
-        self.timeout = parser.getint("scp", "timeout")
-        self.deleteSource = parser.getboolean("scp", "deleteSource")        
+        self.scp = {'hostName' : parser.get("scp", "hostName"),
+                    'userName' : parser.get("scp", "userName"),
+                    'remoteDir' : parser.get("scp", "remoteDir"),
+                    'timeout' : parser.getint("scp", "timeout"),
+                    'deleteSource' : parser.getboolean("scp", "deleteSource")}        
         # Set health check related attributes
-        self.healthFileName = parser.get("health", "healthFileName")
+        self.health = {'healthFileName' : parser.get("health", "healthFileName")}

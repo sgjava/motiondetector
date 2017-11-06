@@ -22,7 +22,7 @@ class cascadedet(detectbase.detectbase):
         # Set frame information
         self.frameInfo(image, appConfig)
         # Initialize classifier
-        self.cascade = cv2.CascadeClassifier(os.path.expanduser(appConfig.cascadeFile))
+        self.cascade = cv2.CascadeClassifier(os.path.expanduser(appConfig.cascade['cascadeFile']))
         self.cascadeDetected = False
         self.logger = logger
 
@@ -37,7 +37,7 @@ class cascadedet(detectbase.detectbase):
             for r in locList:
                 rx, ry, rw, rh = r
                 # Filter by minimum size 
-                if rw > self.appConfig.minWidth and rh > self.appConfig.minHeight:
+                if rw > self.appConfig.cascade['minWidth'] and rh > self.appConfig.cascade['minHeight']:
                     # Only add rects with different size
                     if ((rw, rh)) not in items:
                         items.add((rw, rh))
@@ -60,7 +60,7 @@ class cascadedet(detectbase.detectbase):
                     rx, ry, rw, rh = r
                     locations.append(r)
             # Filter out by weight
-            if weight >= self.appConfig.minCascadeWeight:
+            if weight >= self.appConfig.cascade['minCascadeWeight']:
                 filteredFoundLocations.append(locations)
                 filteredFoundWeights.append(weight)
         return filteredFoundLocations, filteredFoundWeights
@@ -72,10 +72,10 @@ class cascadedet(detectbase.detectbase):
         foundWeightsList = []
         for x, y, w, h in locations:
             # Make sure ROI is big enough for detector
-            if w > self.appConfig.minWidth and h > self.appConfig.minHeight:
+            if w > self.appConfig.cascade['minWidth'] and h > self.appConfig.cascade['minHeight']:
                 # Image should be gray scale
                 imageRoi = resizeImg[y:y + h, x:x + w]
-                foundLocations = self.cascade.detectMultiScale(imageRoi, self.appConfig.scaleFactor, self.appConfig.minNeighbors)
+                foundLocations = self.cascade.detectMultiScale(imageRoi, self.appConfig.cascade['scaleFactor'], self.appConfig.cascade['minNeighbors'])
                 if len(foundLocations) > 0:
                     locationsList.append((x, y, w, h))
                     foundLocationsList.append(foundLocations)
@@ -83,7 +83,7 @@ class cascadedet(detectbase.detectbase):
             foundLocationsList, foundWeightsList = self.filterByWeight(foundLocationsList)
             if len(foundLocationsList) > 0:
                 self.cascadeDetected = True
-                if self.appConfig.mark:
+                if self.appConfig.camera['mark']:
                     # Draw rectangle around found objects
                     self.markRoi(image, locationsList, foundLocationsList, (255, 0, 0), 2)
                                 # Let listening objects know pedestrian detected      

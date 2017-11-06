@@ -24,7 +24,7 @@ class detectbase(observable.observable):
         """Set common frame info"""
         # Motion detection generally works best with 320 or wider images
         self.frameHeight, self.frameWidth, channels = image.shape
-        self.widthDivisor = int(self.frameWidth / appConfig.resizeWidthDiv)
+        self.widthDivisor = int(self.frameWidth / appConfig.camera['resizeWidthDiv'])
         if self.widthDivisor < 1:
             self.widthDivisor = 1
         self.frameResizeWidth = int(self.frameWidth / self.widthDivisor)

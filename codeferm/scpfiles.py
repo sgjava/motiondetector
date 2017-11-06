@@ -38,7 +38,7 @@ class scpfiles(observer.observer):
         if os.path.exists(imagesPath):
             command += "scp -r %s %s@%s:%s && " % (imagesPath, userName, hostName, remoteDir)
         # Copy history image
-        if self.appConfig.historyImage:
+        if self.appConfig.motion['historyImage']:
             command += "scp %s.png %s@%s:%s/%s.png && " % (localFileName, userName, hostName, remoteDir, os.path.basename(localFileName))
         # Copy video file    
         command += "scp %s %s@%s:%s/%s" % (localFileName, userName, hostName, remoteDir, os.path.basename(localFileName))
@@ -53,5 +53,5 @@ class scpfiles(observer.observer):
         "Handle events"
         if kwargs["event"] == self.appConfig.stopRecording:
             # Kick off scp thread
-            scpThread = threading.Thread(target=self.copyFile, args=(self.appConfig.hostName, self.appConfig.userName, kwargs["videoFileName"], os.path.expanduser(self.appConfig.remoteDir), self.appConfig.deleteSource, self.appConfig.timeout,))
+            scpThread = threading.Thread(target=self.copyFile, args=(self.appConfig.scp['hostName'], self.appConfig.scp['userName'], kwargs["videoFileName"], os.path.expanduser(self.appConfig.scp['remoteDir']), self.appConfig.scp['deleteSource'], self.appConfig.scp['timeout'],))
             scpThread.start()

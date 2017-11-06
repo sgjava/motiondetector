@@ -13,7 +13,6 @@ import unittest, sys, logging, codeferm.config, codeferm.videocapture
 
 class mjpegclient(unittest.TestCase):
 
-
     def setUp(self):
         # sys.argv[6] is configuration file or default is used
         if len(sys.argv) < 7:
@@ -44,6 +43,7 @@ class mjpegclient(unittest.TestCase):
         # Make sure we have image data
         self.assertFalse(image.size == 0, "Image cannot be size 0")
         self.logger.debug("Height: %d, width: %d, fps: %d" % (self.client.frameHeight, self.client.frameWidth, self.client.fps))
+
         
 if __name__ == "__main__":
     unittest.main(argv=[sys.argv[0]])

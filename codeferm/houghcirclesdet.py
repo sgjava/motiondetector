@@ -35,10 +35,9 @@ class houghcirclesdet(detectbase.detectbase):
         rows, cols = grayImg.shape
         for x, y, w, h in locations:
             imageRoi = grayImg[y:y + h, x:x + w]
-            blurImg = cv2.GaussianBlur(imageRoi, (5, 5), 0)
-            # circles = cv2.HoughCircles(imageRoi, self.appConfig.methodType, self.appConfig.dp, self.appConfig.minDist, self.appConfig.param1, self.appConfig.param2, self.appConfig.minRadius, self.appConfig.maxRadius)
-            # cv2.GaussianBlur(imageRoi, (9, 9), 2)
-            circles = cv2.HoughCircles(blurImg, self.appConfig.methodType, self.appConfig.dp, minDist=self.appConfig.minDist, param1=self.appConfig.param1, param2=self.appConfig.param2, minRadius=self.appConfig.minRadius, maxRadius=self.appConfig.maxRadius)
+            edgesImg = cv2.Canny(imageRoi, 5, 70, apertureSize=3)
+            blurImg = cv2.GaussianBlur(edgesImg, (7, 7), 0)
+            circles = cv2.HoughCircles(blurImg, self.appConfig.hough['methodType'], self.appConfig.hough['dp'], minDist=self.appConfig.hough['minDist'], param1=self.appConfig.hough['param1'], param2=self.appConfig.hough['param2'], minRadius=self.appConfig.hough['minRadius'], maxRadius=self.appConfig.hough['maxRadius'])
             if circles is not None:
                 circles = numpy.uint16(numpy.around(circles))      
                 for i in circles[0, :]:
@@ -49,7 +48,7 @@ class houghcirclesdet(detectbase.detectbase):
         # Any hits?
         if len(foundLocationsList) > 0:
             self.circleDetected = True
-            if self.appConfig.mark:
+            if self.appConfig.camera['mark']:
                 # Draw rectangle around found objects
                 self.markCircle(image, locationsList, foundLocationsList, (255, 0, 0), 2)
             # self.logger.debug("Circle detected locations: %s" % foundLocationsList)

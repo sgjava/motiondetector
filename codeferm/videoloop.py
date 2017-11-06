@@ -25,24 +25,24 @@ class videoloop(observer.observer, observable.observable):
         self.appConfig = config.config(fileName)        
         # Set up logger
         self.logger = logging.getLogger("videoloop")
-        self.logger.setLevel(self.appConfig.loggingLevel)
-        formatter = logging.Formatter(self.appConfig.loggingFormatter)
+        self.logger.setLevel(self.appConfig.logging['level'])
+        formatter = logging.Formatter(self.appConfig.logging['formatter'])
         handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
         self.logger.info("Configuring from file: %s" % fileName)
-        self.logger.info("Logging level: %s" % self.appConfig.loggingLevel)
-        self.logger.debug("Logging formatter: %s" % self.appConfig.loggingFormatter)
+        self.logger.info("Logging level: %s" % self.appConfig.logging['level'])
+        self.logger.debug("Logging formatter: %s" % self.appConfig.logging['formatter'])
         # Get frame grabber plugin
-        self.logger.info("Loading frame grabber plugin: %s" % self.appConfig.framePlugin)
+        self.logger.info("Loading frame grabber plugin: %s" % self.appConfig.camera['framePlugin'])
         # If url is a file read fps is timed by the video fps
-        self.urlIsFile = os.path.isfile(self.appConfig.url)
+        self.urlIsFile = os.path.isfile(self.appConfig.camera['url'])
         # If codeferm.videocapture is selected then set VideoCapture properties
-        if self.appConfig.framePlugin == "codeferm.videocapture":
-            self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.framePlugin, url=self.appConfig.url)
-            self.framePluginInstance.setProperties(self.appConfig.videoCaptureProperties)
+        if self.appConfig.camera['framePlugin'] == "codeferm.videocapture":
+            self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.camera['framePlugin'], url=self.appConfig.camera['url'])
+            self.framePluginInstance.setProperties(self.appConfig.camera['videoCaptureProperties'])
         else:
-            self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.framePlugin, url=self.appConfig.url, timeout=self.appConfig.socketTimeout)
+            self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.camera['framePlugin'], url=self.appConfig.camera['url'], timeout=self.appConfig.camera['socketTimeout'])
         self.videoWriter = None
         # Frame buffer
         self.frameBuf = []
@@ -86,8 +86,8 @@ class videoloop(observer.observer, observable.observable):
                     self.frameOk = False
                 if self.frameOk:
                     # Make sure we do not run out of memory
-                    if len(self.frameBuf) > self.appConfig.frameBufMax:
-                        self.logger.error("Frame buffer exceeded: %d" % self.appConfig.frameBufMax)
+                    if len(self.frameBuf) > self.appConfig.camera['frameBufMax']:
+                        self.logger.error("Frame buffer exceeded: %d" % self.appConfig.camera['frameBufMax'])
                         self.frameOk = False
                     else:
                         # Add new image to end of list
@@ -138,7 +138,7 @@ class videoloop(observer.observer, observable.observable):
         self.videoWriter.release()
         self.logger.info("Stop recording: %d frames" % (self.recFrameNum - 1))
         # Write off history image
-        if self.appConfig.historyImage:
+        if self.appConfig.motion['historyImage']:
             # Save history image ready for ignore mask editing
             self.logger.info("Writing history image %s.png" % self.videoFileName)
             cv2.imwrite("%s.png" % self.videoFileName, cv2.bitwise_not(self.historyImg))
@@ -157,19 +157,19 @@ class videoloop(observer.observer, observable.observable):
         "Create file name based on image timestamp"
         # Construct directory name from camera name, recordDir and date
         dateStr = timestamp.strftime("%Y-%m-%d")
-        fileDir = "%s/%s/%s" % (os.path.expanduser(self.appConfig.recordDir), self.appConfig.cameraName, dateStr)
+        fileDir = "%s/%s/%s" % (os.path.expanduser(self.appConfig.camera['recordDir']), self.appConfig.camera['name'], dateStr)
         # Create dir if it doesn"t exist
         if not os.path.exists(fileDir):
             os.makedirs(fileDir)
-        fileName = "%s-%s.%s" % (name, timestamp.strftime("%H-%M-%S"), self.appConfig.recordFileExt)
+        fileName = "%s-%s.%s" % (name, timestamp.strftime("%H-%M-%S"), self.appConfig.camera['recordFileExt'])
         return "%s/%s" % (fileDir, fileName)
 
     def startRecording(self, timestamp, motionPercent):
         "Start recording video"
         self.videoFileName = self.makeFileName(timestamp, "motion")
-        self.videoWriter = cv2.VideoWriter(self.videoFileName, cv2.VideoWriter_fourcc(self.appConfig.fourcc[0], self.appConfig.fourcc[1], self.appConfig.fourcc[2], self.appConfig.fourcc[3]), self.fps, (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight), True)
+        self.videoWriter = cv2.VideoWriter(self.videoFileName, cv2.VideoWriter_fourcc(self.appConfig.camera['fourcc'][0], self.appConfig.camera['fourcc'][1], self.appConfig.camera['fourcc'][2], self.appConfig.camera['fourcc'][3]), self.fps, (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight), True)
         self.logger.info("Start recording (%4.2f%%) %s @ %3.1f FPS" % (motionPercent, self.videoFileName, self.fps))
-        if self.appConfig.historyImage:
+        if self.appConfig.motion['historyImage']:
             # Create black history image
             self.historyImg = numpy.zeros((self.motion.frameResizeHeight, self.motion.frameResizeWidth), numpy.uint8)
         self.recFrameNum = 1
@@ -205,10 +205,10 @@ class videoloop(observer.observer, observable.observable):
         """Video processing loop"""
         try:
             # Set FPS
-            if self.appConfig.fps == 0:
+            if self.appConfig.camera['fps'] == 0:
                 self.fps = self.framePluginInstance.fps
             else:
-                self.fps = self.appConfig.fps
+                self.fps = self.appConfig.camera['fps']
             self.logger.info("%dx%d, fps: %d" % (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight, self.fps))
             if self.framePluginInstance.frameWidth > 0 and self.framePluginInstance.frameHeight > 0:
                 # Analyze only ~3 FPS which works well with this type of detection
@@ -228,15 +228,15 @@ class videoloop(observer.observer, observable.observable):
                 # Observe motion events
                 self.motion.addObserver(self)
                 # Load detect plugin
-                if self.appConfig.detectPlugin != "":
-                    self.logger.info("Loading detection plugin: %s" % self.appConfig.detectPlugin)
-                    self.detectPluginInstance = self.getPlugin(moduleName=self.appConfig.detectPlugin, appConfig=self.appConfig, image=self.frameBuf[0][0], logger=self.logger)
+                if self.appConfig.camera['detectPlugin'] != "":
+                    self.logger.info("Loading detection plugin: %s" % self.appConfig.camera['detectPlugin'])
+                    self.detectPluginInstance = self.getPlugin(moduleName=self.appConfig.camera['detectPlugin'], appConfig=self.appConfig, image=self.frameBuf[0][0], logger=self.logger)
                     # Observe motion events
                     self.detectPluginInstance.addObserver(self)
-                if self.appConfig.videoloopPlugins is not None:
+                if self.appConfig.camera['videoloopPlugins'] is not None:
                     # Load videoloop plugins
                     self.videoloopPluginList = []
-                    for item in self.appConfig.videoloopPlugins:
+                    for item in self.appConfig.camera['videoloopPlugins']:
                         self.logger.info("Loading videoloop plugin: %s" % item)
                         pluginInstance = self.getPlugin(moduleName=item, appConfig=self.appConfig, logger=self.logger)
                         # Observe videoloop events
@@ -250,7 +250,7 @@ class videoloop(observer.observer, observable.observable):
                     curTime = time.time()
                     elapse = curTime - start
                     # Log FPS
-                    if elapse >= self.appConfig.fpsInterval:
+                    if elapse >= self.appConfig.camera['fpsInterval']:
                         start = curTime
                         self.logger.info("%3.1f FPS, frame buffer size: %d" % (elapsedFrames / elapse, len(self.frameBuf)))
                         elapsedFrames = 0
@@ -271,14 +271,14 @@ class videoloop(observer.observer, observable.observable):
                     if skipCount <= 0:
                         skipCount = frameToCheck
                         resizeImg, grayImg, bwImg, motionPercent, movementLocationsFiltered = self.motion.detect(frame, timestamp)
-                        if self.appConfig.historyImage and self.recording:
+                        if self.appConfig.motion['historyImage'] and self.recording:
                             # Update history image
                             self.historyImg = numpy.bitwise_or(bwImg, self.historyImg)                    
-                        if self.appConfig.detectPlugin != "":
+                        if self.appConfig.camera['detectPlugin'] != "":
                             locationsList, foundLocationsList, foundWeightsList = self.detectPluginInstance.detect(frame, resizeImg, grayImg, timestamp, movementLocationsFiltered)
                             if len(foundLocationsList) > 0 and self.recording:
                                 # Save off detected elapsedFrames
-                                if self.appConfig.saveFrames:
+                                if self.appConfig.camera['saveFrames']:
                                     thread = threading.Thread(target=self.saveFrame, args=(frame, "%s/%d.jpg" % (os.path.splitext(self.videoFileName)[0], self.recFrameNum)),)
                                     thread.start()
                     else:
