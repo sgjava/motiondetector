@@ -32,13 +32,16 @@ class houghcirclesdet(detectbase.detectbase):
         foundLocations = []
         foundLocationsList = []
         foundWeightsList = []
+        rows, cols = grayImg.shape
         for x, y, w, h in locations:
             imageRoi = grayImg[y:y + h, x:x + w]
-            #circles = cv2.HoughCircles(imageRoi, self.appConfig.methodType, self.appConfig.dp, self.appConfig.minDist, self.appConfig.param1, self.appConfig.param2, self.appConfig.minRadius, self.appConfig.maxRadius)
-            circles = cv2.HoughCircles(imageRoi,cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=0,maxRadius=0)
+            blurImg = cv2.GaussianBlur(imageRoi, (5, 5), 0)
+            # circles = cv2.HoughCircles(imageRoi, self.appConfig.methodType, self.appConfig.dp, self.appConfig.minDist, self.appConfig.param1, self.appConfig.param2, self.appConfig.minRadius, self.appConfig.maxRadius)
+            # cv2.GaussianBlur(imageRoi, (9, 9), 2)
+            circles = cv2.HoughCircles(blurImg, self.appConfig.methodType, self.appConfig.dp, minDist=self.appConfig.minDist, param1=self.appConfig.param1, param2=self.appConfig.param2, minRadius=self.appConfig.minRadius, maxRadius=self.appConfig.maxRadius)
             if circles is not None:
                 circles = numpy.uint16(numpy.around(circles))      
-                for i in circles[0,:]:
+                for i in circles[0, :]:
                     foundLocations.append((i[0], i[1], i[2]))
                 if len(foundLocations) > 0:
                     locationsList.append((x, y, w, h))

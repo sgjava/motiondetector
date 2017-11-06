@@ -8,6 +8,7 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
+
 class observable(list):
     """A class of thing that can be observed.
     
