@@ -63,7 +63,8 @@ class config(object):
                            'winStride' : eval(parser.get("pedestrian", "winStride"), {}, {}),
                            'padding' : eval(parser.get("pedestrian", "padding"), {}, {}),
                            'scale0' : parser.getfloat("pedestrian", "scale0"),
-                           'minHogWeight' : parser.getfloat("pedestrian", "minHogWeight")}
+                           'minHogWeight' : parser.getfloat("pedestrian", "minHogWeight"),
+                           'detectorFile' : parser.get("pedestrian", "detectorFile")}
         # Set cascade related data attributes
         self.cascade = {'cascadeFile' : parser.get("cascade", "cascadeFile"),
                         'scaleFactor' : parser.getfloat("cascade", "scaleFactor"),

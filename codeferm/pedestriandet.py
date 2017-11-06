@@ -24,8 +24,14 @@ class pedestriandet(detectbase.detectbase):
         # Set frame information
         self.frameInfo(image, appConfig)
         # Initialize HOG
-        self.hog = cv2.HOGDescriptor()
-        self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+        if appConfig.pedestrian['detectorFile'] != "":
+            logger.info("Configuring HOG from file: %s" % appConfig.pedestrian['detectorFile'])
+            self.hog = cv2.HOGDescriptor(appConfig.pedestrian['detectorFile'])
+        else:
+            # No trained file defined, so use default detector
+            logger.info("Configuring HOG with cv2.HOGDescriptor_getDefaultPeopleDetector()")
+            self.hog = cv2.HOGDescriptor()
+            self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
         self.pedestrianDetected = False
         self.logger = logger
 
