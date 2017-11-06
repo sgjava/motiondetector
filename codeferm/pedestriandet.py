@@ -8,7 +8,7 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import cv2, detectbase
+import cv2, os, detectbase
 
 
 class pedestriandet(detectbase.detectbase):
@@ -26,7 +26,7 @@ class pedestriandet(detectbase.detectbase):
         # Initialize HOG
         if appConfig.pedestrian['detectorFile'] != "":
             logger.info("Configuring HOG from file: %s" % appConfig.pedestrian['detectorFile'])
-            self.hog = cv2.HOGDescriptor(appConfig.pedestrian['detectorFile'])
+            self.hog = cv2.HOGDescriptor(os.path.expanduser(appConfig.pedestrian['detectorFile']))
         else:
             # No trained file defined, so use default detector
             logger.info("Configuring HOG with cv2.HOGDescriptor_getDefaultPeopleDetector()")
