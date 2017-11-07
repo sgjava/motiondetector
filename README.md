@@ -28,7 +28,7 @@ It's important to use the right detectors and configuration to achieve the desir
 * Fault tolerant architecture ensures buggy camera firmware or poor network connectivity will not derail video processing.
 * High performance frame capture plugins including Python socket based MJPEG decoder.
 * Threshold based motion detection, ignore mask, multiple object marking and video recording.
-* Pedestrian and human feature detection.
+* Pedestrian and human feature detection with the ability to train your own detector.
 * Add your own plugins.
 * Single configuration file.
 
