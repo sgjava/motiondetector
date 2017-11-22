@@ -87,4 +87,8 @@ class config(object):
                     'timeout' : parser.getint("scp", "timeout"),
                     'deleteSource' : parser.getboolean("scp", "deleteSource")}        
         # Set health check related attributes
-        self.health = {'healthFileName' : parser.get("health", "healthFileName")}
+        self.health = {'fileName' : parser.get("health", "fileName"),
+                    'mqttHost' : parser.get("health", "mqttHost"),
+                    'mqttPort' : parser.getint("health", "mqttPort"),
+                    'mqttTopic' : parser.get("health", "mqttTopic")}        
+                    
