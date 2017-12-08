@@ -305,7 +305,6 @@ class videoloop(observer.observer, observable.observable):
             # Add timestamp to errors
             sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
             traceback.print_exc(file=sys.stderr)
-
                 
 if __name__ == "__main__":
     try:
