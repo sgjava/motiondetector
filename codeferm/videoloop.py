@@ -130,18 +130,19 @@ class videoloop(observer.observer, observable.observable):
             self.recFrameNum += 1
         # Empty write buffer
         self.writeBuf = []
-        # Write off write buffer
+        # Write off history buffer
         self.logger.info("Writing %d frames of history buffer" % len(self.historyBuf))
         for f in self.historyBuf[1:]:
             self.videoWriter.write(f[0])
             self.recFrameNum += 1
         self.videoWriter.release()
-        self.logger.info("Stop recording: %d frames" % (self.recFrameNum - 1))
+        self.logger.info("Stop recording: %s, %d frames" % (self.videoFileName, self.recFrameNum - 1))
         # Write off history image
         if self.appConfig.motion['historyImage']:
             # Save history image ready for ignore mask editing
             self.logger.info("Writing history image %s.png" % self.videoFileName)
             cv2.imwrite("%s.png" % self.videoFileName, cv2.bitwise_not(self.historyImg))
+        self.recording = False
         self.notifyObservers(event=self.appConfig.stopRecording, videoFileName=self.videoFileName)
         self.logger.info("writeFrames thread exit")
 
@@ -166,6 +167,10 @@ class videoloop(observer.observer, observable.observable):
 
     def startRecording(self, timestamp, motionPercent):
         "Start recording video"
+        # Wait for current recording to finish
+        while(self.recording):
+            # 1/4 of FPS sleep
+            time.sleep(1.0 / (self.fps * 4))        
         self.videoFileName = self.makeFileName(timestamp, "motion")
         self.videoWriter = cv2.VideoWriter(self.videoFileName, cv2.VideoWriter_fourcc(self.appConfig.camera['fourcc'][0], self.appConfig.camera['fourcc'][1], self.appConfig.camera['fourcc'][2], self.appConfig.camera['fourcc'][3]), self.fps, (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight), True)
         self.logger.info("Start recording (%4.2f%%) %s @ %3.1f FPS" % (motionPercent, self.videoFileName, self.fps))
@@ -187,7 +192,6 @@ class videoloop(observer.observer, observable.observable):
             startRecordingThread.start()
         elif kwargs["event"] == self.appConfig.motionStop:
             self.logger.debug("Motion stop: %4.2f%%" % kwargs["motionPercent"])
-            self.recording = False
         elif kwargs["event"] == self.appConfig.pedestrianDetected:
             self.logger.debug("Pedestrian detected")
         elif kwargs["event"] == self.appConfig.cascadeDetected:
