@@ -53,7 +53,6 @@ class videoloop(observer.observer, observable.observable):
         self.fps = 0
         self.frameOk = True
         self.recording = False
-        self.writingFrames = False
         self.recFrameNum = 0
 
     def getPlugin(self, moduleName, **kwargs):
@@ -108,7 +107,7 @@ class videoloop(observer.observer, observable.observable):
         
     def writeFrames(self):
         """Write frames"""
-        while(self.writingFrames and self.frameOk):
+        while(self.recording and self.frameOk):
             # Make sure thread doesn't hang in case of write exception
             try:
                 if len(self.writeBuf) > 0:
@@ -120,7 +119,6 @@ class videoloop(observer.observer, observable.observable):
                     # 1/4 of FPS sleep
                     time.sleep(1.0 / (self.fps * 4))
             except:
-                self.writingFrames = False
                 self.recording = False
                 # Add timestamp to errors
                 sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
@@ -138,7 +136,7 @@ class videoloop(observer.observer, observable.observable):
             self.videoWriter.write(f[0])
             self.recFrameNum += 1
         self.videoWriter.release()
-        self.logger.info("Stop recording: %s, %d frames" % (self.videoFileName, self.recFrameNum - 1))
+        self.logger.info("Stop recording: %d frames" % (self.recFrameNum - 1))
         # Write off history image
         if self.appConfig.motion['historyImage']:
             # Save history image ready for ignore mask editing
@@ -179,7 +177,7 @@ class videoloop(observer.observer, observable.observable):
             # Create black history image
             self.historyImg = numpy.zeros((self.motion.frameResizeHeight, self.motion.frameResizeWidth), numpy.uint8)
         self.recFrameNum = 1
-        self.writingFrames = True        
+        self.recording = True
         thread = threading.Thread(target=self.writeFrames)
         thread.start()
         self.notifyObservers(event=self.appConfig.startRecording, videoFileName=self.videoFileName)
@@ -193,11 +191,6 @@ class videoloop(observer.observer, observable.observable):
             startRecordingThread.start()
         elif kwargs["event"] == self.appConfig.motionStop:
             self.logger.debug("Motion stop: %4.2f%%" % kwargs["motionPercent"])
-            # Break out of frame writing loop in writeFrames thread
-            self.writingFrames = False            
-        elif kwargs["event"] == self.appConfig.startRecording:
-            self.recording = True
-        elif kwargs["event"] == self.appConfig.stopRecording:
             self.recording = False
         elif kwargs["event"] == self.appConfig.pedestrianDetected:
             self.logger.debug("Pedestrian detected")
@@ -298,8 +291,9 @@ class videoloop(observer.observer, observable.observable):
                     if self.recording and len(self.historyBuf) > 0:
                             # Write first image in history buffer (the oldest)
                             self.writeBuf.append(self.historyBuf[0])
-            # If exiting while writing frames then force thread to exit                
-            self.writingFrames = False
+            # If exiting while recording then stop recording                
+            if self.recording:
+                self.recording = False
             # Close capture
             self.framePluginInstance.close()
         except:
