@@ -145,7 +145,6 @@ class videoloop(observer.observer, observable.observable):
             # Save history image ready for ignore mask editing
             self.logger.info("Writing history image %s.png" % self.videoFileName)
             cv2.imwrite("%s.png" % self.videoFileName, cv2.bitwise_not(self.historyImg))
-        self.writingFrames = False
         self.notifyObservers(event=self.appConfig.recordingStop, videoFileName=self.videoFileName)
         self.logger.info("writeFrames thread exit")
 
@@ -195,6 +194,7 @@ class videoloop(observer.observer, observable.observable):
             recordingStartThread.start()
         elif kwargs["event"] == self.appConfig.motionStop:
             self.logger.debug("Motion stop: %4.2f%%" % kwargs["motionPercent"])
+            self.writingFrames = False
         elif kwargs["event"] == self.appConfig.recordingStop:
             self.recording = False
         elif kwargs["event"] == self.appConfig.pedestrianDetected:
