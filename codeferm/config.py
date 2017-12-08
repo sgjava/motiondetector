@@ -19,7 +19,7 @@ class config(object):
     """
     
     # Event type attributes
-    motionStart, motionStop, pedestrianDetected, cascadeDetected, circleDetected, startRecording, stopRecording, healthCheck = range(0, 8)    
+    motionStart, motionStop, pedestrianDetected, cascadeDetected, circleDetected, recordingStart, recordingStop, healthCheck = range(0, 8)    
 
     def __init__(self, fileName):
         """ Read configuration from INI file """
