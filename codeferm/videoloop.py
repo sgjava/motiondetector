@@ -52,8 +52,8 @@ class videoloop(observer.observer, observable.observable):
         self.writeBuf = []
         self.fps = 0
         self.frameOk = True
-        self.recording = False
         self.writingFrames = False
+        self.recording = False
         self.recFrameNum = 0
 
     def getPlugin(self, moduleName, **kwargs):
@@ -108,7 +108,6 @@ class videoloop(observer.observer, observable.observable):
         
     def writeFrames(self):
         """Write frames"""
-        self.writingFrames = True
         while(self.writingFrames and self.frameOk):
             # Make sure thread doesn't hang in case of write exception
             try:
@@ -122,7 +121,6 @@ class videoloop(observer.observer, observable.observable):
                     time.sleep(1.0 / (self.fps * 4))
             except:
                 self.writingFrames = False
-                self.recording = False
                 # Add timestamp to errors
                 sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
                 traceback.print_exc(file=sys.stderr)
@@ -133,20 +131,18 @@ class videoloop(observer.observer, observable.observable):
             self.recFrameNum += 1
         # Empty write buffer
         self.writeBuf = []
-        # Write off history buffer
+        # Write off write buffer
         self.logger.info("Writing %d frames of history buffer" % len(self.historyBuf))
         for f in self.historyBuf[1:]:
             self.videoWriter.write(f[0])
             self.recFrameNum += 1
         self.videoWriter.release()
-        self.logger.info("Stop recording: %d frames" % (self.recFrameNum - 1))
         # Write off history image
         if self.appConfig.motion['historyImage']:
             # Save history image ready for ignore mask editing
             self.logger.info("Writing history image %s.png" % self.videoFileName)
             cv2.imwrite("%s.png" % self.videoFileName, cv2.bitwise_not(self.historyImg))
-        self.recording = False
-        self.notifyObservers(event=self.appConfig.recordingStop, videoFileName=self.videoFileName)
+        self.notifyObservers(event=self.appConfig.recordingStop, videoFileName=self.videoFileName, frames=self.recFrameNum - 1)
         self.logger.info("writeFrames thread exit")
 
     def saveFrame(self, frame, fileName):
@@ -176,15 +172,13 @@ class videoloop(observer.observer, observable.observable):
             time.sleep(1.0 / (self.fps * 4))        
         self.videoFileName = self.makeFileName(timestamp, "motion")
         self.videoWriter = cv2.VideoWriter(self.videoFileName, cv2.VideoWriter_fourcc(self.appConfig.camera['fourcc'][0], self.appConfig.camera['fourcc'][1], self.appConfig.camera['fourcc'][2], self.appConfig.camera['fourcc'][3]), self.fps, (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight), True)
-        self.logger.info("Start recording (%4.2f%%) %s @ %3.1f FPS" % (motionPercent, self.videoFileName, self.fps))
         if self.appConfig.motion['historyImage']:
             # Create black history image
             self.historyImg = numpy.zeros((self.motion.frameResizeHeight, self.motion.frameResizeWidth), numpy.uint8)
         self.recFrameNum = 1
-        self.recording = True
+        self.notifyObservers(event=self.appConfig.recordingStart, motionPercent=motionPercent, videoFileName=self.videoFileName, fps=self.fps)
         thread = threading.Thread(target=self.writeFrames)
         thread.start()
-        self.notifyObservers(event=self.appConfig.recordingStart, videoFileName=self.videoFileName)
        
     def observeEvent(self, **kwargs):
         "Handle events"
@@ -195,7 +189,15 @@ class videoloop(observer.observer, observable.observable):
             recordingStartThread.start()
         elif kwargs["event"] == self.appConfig.motionStop:
             self.logger.debug("Motion stop: %4.2f%%" % kwargs["motionPercent"])
+            # Exit writeFrames loop
             self.writingFrames = False
+        elif kwargs["event"] == self.appConfig.recordingStart:
+            self.logger.info("Recording start: (%4.2f%%) %s @ %3.1f FPS" % (kwargs["motionPercent"], kwargs["videoFileName"], kwargs["fps"]))
+            self.recording = True
+            self.writingFrames = True
+        elif kwargs["event"] == self.appConfig.recordingStop:
+            self.logger.info("Recording stop: %d frames, %s" % (kwargs["frames"], kwargs["videoFileName"]))
+            self.recording = False
         elif kwargs["event"] == self.appConfig.pedestrianDetected:
             self.logger.debug("Pedestrian detected")
         elif kwargs["event"] == self.appConfig.cascadeDetected:
@@ -219,6 +221,8 @@ class videoloop(observer.observer, observable.observable):
                 self.fps = self.appConfig.camera['fps']
             self.logger.info("%dx%d, fps: %d" % (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight, self.fps))
             if self.framePluginInstance.frameWidth > 0 and self.framePluginInstance.frameHeight > 0:
+                # Observe videoloop events
+                self.addObserver(self)
                 # Analyze only ~3 FPS which works well with this type of detection
                 frameToCheck = int(self.fps / 4)
                 # 0 means check every frame
@@ -292,18 +296,22 @@ class videoloop(observer.observer, observable.observable):
                     else:
                         skipCount -= 1
                     # Add frame if recording
-                    if self.recording and len(self.historyBuf) > 0:
+                    if self.writingFrames and len(self.historyBuf) > 0:
                             # Write first image in history buffer (the oldest)
                             self.writeBuf.append(self.historyBuf[0])
-            # If exiting while recording then stop recording                
-            if self.recording:
-                self.recording = False
+            # If exiting while writing frames then exit writeFrames loop                
+            self.writingFrames = False
+            # Wait for current recording to finish
+            while(self.recording):
+                # 1/4 of FPS sleep
+                time.sleep(1.0 / (self.fps * 4))        
             # Close capture
             self.framePluginInstance.close()
         except:
             # Add timestamp to errors
             sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
             traceback.print_exc(file=sys.stderr)
+
                 
 if __name__ == "__main__":
     try:
