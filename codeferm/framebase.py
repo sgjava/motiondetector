@@ -24,14 +24,14 @@ class framebase(object):
     @abc.abstractmethod
     def getFrame(self):
         """Return frame as raw data"""
-        raise NotImplementedError, "Please override in the derived class"
+        raise NotImplementedError("Please override in the derived class")
     
     @abc.abstractmethod
     def decodeFrame(self, image):
         """Return frame as numpy array"""
-        raise NotImplementedError, "Please override in the derived class"    
+        raise NotImplementedError("Please override in the derived class")
     
     @abc.abstractmethod
     def close(self):
         """Close connections, files, etc."""
-        raise NotImplementedError, "Please override in the derived class"
+        raise NotImplementedError("Please override in the derived class")

@@ -8,7 +8,7 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import ConfigParser, cv2
+import configparser, cv2
 
 
 class config(object):
@@ -23,7 +23,7 @@ class config(object):
 
     def __init__(self, fileName):
         """ Read configuration from INI file """
-        parser = ConfigParser.SafeConfigParser()
+        parser = configparser.SafeConfigParser()
         # Read configuration file
         parser.read(fileName)
         # Logging related attributes
