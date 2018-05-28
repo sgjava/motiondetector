@@ -121,7 +121,7 @@ To make Motion Detector more resilient it's wise to run it with a process contro
 * `sudo nano /etc/supervisor/conf.d/videoloop.conf`
 ```
 [program:videoloop]
-command = python videoloop.py /path/to/your/config.ini
+command = python3 videoloop.py /path/to/your/config.ini
 directory = /home/<username>/motiondetector/codeferm
 user = <username>
 startsecs = 0
