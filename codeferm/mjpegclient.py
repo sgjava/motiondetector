@@ -42,8 +42,7 @@ class mjpegclient(framebase.framebase):
             ]
         else:
             # Base64 encode username and password
-            # token = base64.encodestring("%s:%s" % (parsed.username, parsed.password)).strip()
-            token = base64.encodestring("%s:%s" % (parsed.username, parsed.password))
+            token = base64.encodestring(("%s:%s" % (parsed.username, parsed.password)).encode()).decode().replace('\n', '')            
             # Build HTTP header
             lines = [
                 "GET %s HTTP/1.1" % path,
