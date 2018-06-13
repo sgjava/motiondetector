@@ -42,7 +42,7 @@ class videoloop(observer.observer, observable.observable):
             self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.camera['framePlugin'], url=self.appConfig.camera['url'])
             self.framePluginInstance.setProperties(self.appConfig.camera['videoCaptureProperties'])
         else:
-            self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.camera['framePlugin'], url=self.appConfig.camera['url'], timeout=self.appConfig.camera['socketTimeout'])
+            self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.camera['framePlugin'], url=self.appConfig.camera['url'], timeout=self.appConfig.camera['socketTimeout'], extraln=self.appConfig.camera['extraln'])
         self.videoWriter = None
         # Frame buffer
         self.frameBuf = []

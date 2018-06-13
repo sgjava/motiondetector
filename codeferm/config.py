@@ -36,6 +36,7 @@ class config(object):
                        'videoloopPlugins' :  eval(parser.get("camera", "videoloopPlugins"), {}, {}),
                        'url' :  parser.get("camera", "url"),
                        'socketTimeout' :  parser.getint("camera", "socketTimeout"),
+                       'extraln' :  parser.getboolean("camera", "extraln"),
                        'resizeWidthDiv' :  parser.getint("camera", "resizeWidthDiv"),
                        'detectPlugin' :  parser.get("camera", "detectPlugin"),
                        'fpsInterval' :  parser.getfloat("camera", "fpsInterval"),

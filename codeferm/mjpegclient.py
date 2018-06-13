@@ -18,7 +18,9 @@ class mjpegclient(framebase.framebase):
 
     """
     
-    def __init__(self, url, timeout):
+    def __init__(self, url, timeout, extraln):
+        # Set to true if using mjpg_streamer
+        self.extraln = extraln
         """Connect to stream"""
         # Set socket timeout
         socket.setdefaulttimeout(timeout)        
@@ -90,6 +92,9 @@ class mjpegclient(framebase.framebase):
                 self.socketFile.readline()
                 # Grab chunk length
                 length = int(parts[1].strip())
+                # mjpg_streamer has an extra readline for some reason
+                if self.extraln:
+                    self.line = self.socketFile.readline()
             else:
                 self.line = self.socketFile.readline()
         return length
