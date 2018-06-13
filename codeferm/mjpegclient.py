@@ -42,7 +42,7 @@ class mjpegclient(framebase.framebase):
             ]
         else:
             # Base64 encode username and password
-            token = base64.encodestring(("%s:%s" % (parsed.username, parsed.password)).encode('utf-8')).decode('utf-8').strip()            
+            token = base64.b64encode(("%s:%s" % (parsed.username, parsed.password)).encode('utf-8')).decode('utf-8')            
             # Build HTTP header
             lines = [
                 "GET %s HTTP/1.1" % path,
@@ -90,7 +90,8 @@ class mjpegclient(framebase.framebase):
                 self.socketFile.readline()
                 # Grab chunk length
                 length = int(parts[1].strip())
-            self.line = self.socketFile.readline()
+            else:
+                self.line = self.socketFile.readline()
         return length
     
     def getFrame(self):
