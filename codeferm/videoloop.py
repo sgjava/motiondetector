@@ -264,7 +264,7 @@ class videoloop(observer.observer, observable.observable):
                     # Log FPS
                     if elapse >= self.appConfig.camera['fpsInterval']:
                         start = curTime
-                        self.logger.info("%3.1f FPS, frame buffer size: %d" % (elapsedFrames / elapse, len(self.frameBuf)))
+                        self.logger.info("%3.1f FPS, frame buffer size: %d, history buffer size: %d" % (elapsedFrames / elapse, len(self.frameBuf), len(self.historyBuf)))
                         elapsedFrames = 0
                         self.notifyObservers(event=self.appConfig.healthCheck, frameBuf=self.frameBuf, fps=self.fps, frameOk=self.frameOk)
                     # Wait until frame buffer is full
