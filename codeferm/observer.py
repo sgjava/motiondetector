@@ -17,4 +17,4 @@ class observer(object):
     """
 
     def observeEvent(self, **kwargs):
-        raise NotImplementedError("Please override in the derived class")
+        raise NotImplementedError, "Please override in the derived class"
