@@ -276,9 +276,11 @@ class videoloop(observer.observer, observable.observable):
                     self.historyBuf.append(self.frameBuf[0])
                     # Toss oldest history frame
                     if len(self.historyBuf) > self.fps:
-                        self.historyBuf.pop(0)
+                        obj = self.historyBuf.pop(0)
+                        del obj
                     # Toss oldest frame
-                    self.frameBuf.pop(0)
+                    obj = self.frameBuf.pop(0)
+                    del obj
                     # Skip frames until skip count <= 0
                     if skipCount <= 0:
                         skipCount = frameToCheck
