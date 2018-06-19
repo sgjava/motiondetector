@@ -8,8 +8,8 @@ Copyright (c) Steven P. Goldsmith
 All rights reserved.
 """
 
-import socket, urlparse, base64, numpy, cv2, framebase
-
+import socket, base64, numpy, cv2, framebase
+from urllib.parse import urlparse
 
 class mjpegclient(framebase.framebase):
     """MJPEG frame grabber class.
@@ -18,12 +18,14 @@ class mjpegclient(framebase.framebase):
 
     """
     
-    def __init__(self, url, timeout):
+    def __init__(self, url, timeout, extraln):
+        # Set to true if using mjpg_streamer
+        self.extraln = extraln
         """Connect to stream"""
         # Set socket timeout
         socket.setdefaulttimeout(timeout)        
         # Parse URL
-        parsed = urlparse.urlparse(url)
+        parsed = urlparse(url)
         port = parsed.port
         # Set port to default if not set
         if not port:
@@ -42,7 +44,7 @@ class mjpegclient(framebase.framebase):
             ]
         else:
             # Base64 encode username and password
-            token = base64.encodestring("%s:%s" % (parsed.username, parsed.password)).strip()
+            token = base64.b64encode(("%s:%s" % (parsed.username, parsed.password)).encode('utf-8')).decode('utf-8')            
             # Build HTTP header
             lines = [
                 "GET %s HTTP/1.1" % path,
@@ -54,21 +56,21 @@ class mjpegclient(framebase.framebase):
         self.streamSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.streamSock.connect((parsed.hostname, port))
         # Socket file in read, write, binary mode and no buffer
-        self.socketFile = self.streamSock.makefile("rwb", bufsize=0)
+        self.socketFile = self.streamSock.makefile("rwb", buffering=None)
         # Send HTTP GET for MJPEG stream
-        self.socketFile.write("\r\n".join(lines) + "\r\n\r\n")
+        self.socketFile.write("\r\n".join(lines).encode('utf-8') + b"\r\n\r\n")
+        self.socketFile.flush()
         # Read in HTTP headers
         self.line = self.socketFile.readline()
-        while len(self.line) > 0 and self.line.strip() != "":
-            parts = self.line.split(":")
-            if len(parts) > 1 and parts[0].lower() == "content-type":
-                # Extract boundary string from content-type
-                content_type = parts[1].strip()
-                self.boundary = content_type.split(";")[1].split("=")[1]
+        self.boundary = b""
+        while len(self.line) > 0 and self.line.strip() != b"" and self.boundary == b"":
+            if self.line.lower().find(b"content-type: multipart") >= 0:
+                parts = self.line.split(b":")
+                if len(parts) > 1 and parts[0].lower() == b"content-type":
+                    # Extract boundary string from content-type
+                    content_type = parts[1].strip()
+                    self.boundary = content_type.split(b";")[1].split(b"=")[1]
             self.line = self.socketFile.readline()
-        # See if we found "content-type"
-        if not self.boundary:
-            raise Exception("Cannot find content-type")
         # Set basic params
         frame = self.getFrame()
         image = self.decodeFrame(frame)
@@ -81,13 +83,20 @@ class mjpegclient(framebase.framebase):
         # Find boundary
         while len(self.line) > 0 and self.line.count(self.boundary) == 0:
             self.line = self.socketFile.readline()
+        length = 0
         # Read in chunk headers
-        while len(self.line) > 0 and self.line.strip() != "":
-            parts = self.line.split(":")
-            if len(parts) > 1 and parts[0].lower().count("content-length") > 0:
+        while len(self.line) > 0 and self.line.strip() != "" and length == 0:
+            parts = self.line.split(b":")
+            if len(parts) > 1 and parts[0].lower().count(b"content-length") > 0:
+                # Toss \r\n
+                self.socketFile.readline()
                 # Grab chunk length
                 length = int(parts[1].strip())
-            self.line = self.socketFile.readline()
+                # mjpg_streamer has an extra readline for some reason
+                if self.extraln:
+                    self.line = self.socketFile.readline()
+            else:
+                self.line = self.socketFile.readline()
         return length
     
     def getFrame(self):
