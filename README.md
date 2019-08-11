@@ -141,7 +141,7 @@ If you plan on using mjpg-streamer have Supervisor take care of that as well.
 * `sudo nano /etc/supervisor/conf.d/mjpg-streamer.conf`
 ```
 [program:mjpg-streamer]
-command = mjpg_streamer -i "/usr/local/lib/input_uvc.so -n -f 5 -r 1280x720" -o "/usr/local/lib/output_http.so -w /usr/local/www"
+command = mjpg_streamer -i "/usr/local/lib/mjpg-streamer/input_uvc.so -n -f 5 -r 1280x720" -o "/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/www"
 directory = /home/<username>
 user = <username>
 startsecs = 0
