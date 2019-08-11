@@ -5,6 +5,7 @@ Motion Detector takes input from video sources such as network cameras, web cams
 * You have been disappointed with other surveillance software being Windows only (iSpy), woefully outdated (motion) or requiring a special OS image (KERBEROS.IO).
 * You want to use advanced Computer Vision and Machine Learning algorithms.
 * You want a secure camera [New IoT malware targets 100,000 IP cameras via known flaw](http://www.csoonline.com/article/3195825/security/new-iot-malware-targets-100000-ip-cameras-via-known-flaw.html) that does not rely on crappy proprietary firmware.
+Unless of course you want your data transmitted to the Chinese mothership.
 * There is no free/paid version, lame accounts to sign up for, etc. If you want extra features you can request them or write them yourself.
 * If you are a developer and SBC tinkerer then the possibilities are endless.
 
@@ -33,7 +34,7 @@ It's important to use the right detectors and configuration to achieve the desir
 * Single configuration file.
 
 ### Requirements
-* X86, X86_64, ARMv7 or ARMv8 version of Ubuntu 16.04 or Debian 8 (will most likely work on other Linux based operating systems as well)
+* X86, X86_64, ARMv7 or ARMv8 version of Ubuntu 18.04 or Debian 9 (will most likely work on other Linux based operating systems as well)
 * Internet connection
 * Camera or video file
 * [Install OpenCV](https://github.com/sgjava/install-opencv) or some other method to install latest OpenCV
