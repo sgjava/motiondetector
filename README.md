@@ -40,7 +40,7 @@ It's important to use the right detectors and configuration to achieve the desir
 * [Install OpenCV](https://github.com/sgjava/install-opencv) or some other method to install latest OpenCV
 
 ### Download project and test
-* `sudo apt-get install git-core`
+* `sudo apt install git-core`
 * `cd ~/`
 * `git clone --depth 1 https://github.com/sgjava/motiondetector.git`
 * `cd ~/motiondetector/codeferm`
@@ -117,28 +117,12 @@ If you wish to use the SCP plugin then you should generate ssh keypair, so you d
 
 ### Configure Supervisor
 To make Motion Detector more resilient it's wise to run it with a process control system like [Supervisor](http://supervisord.org). Motion Detector currently fails fast if it gets a bad frame or socket timeout (as long as you use a reasonable socket timeout value in the configuration). Supervisor will automatically restart videoloop.py after failure.
-* `sudo apt-get install supervisor`
-* `sudo service supervisor start`
-* `sudo nano /etc/supervisor/conf.d/videoloop.conf`
-```
-[program:videoloop]
-command = python3 videoloop.py /path/to/your/config.ini
-directory = /home/<username>/motiondetector/codeferm
-user = <username>
-startsecs = 0
-autostart = true  
-autorestart = true  
-stdout_logfile = /var/log/supervisor/videoloop.log  
-stderr_logfile = /var/log/supervisor/videoloop_err.log
-environment = PYTHONPATH=/home/<username>/motiondetector
-```
-   
-* `sudo supervisorctl update`
-* `tail /var/log/supervisor/videoloop.log`
-
-If you plan on using mjpg-streamer have Supervisor take care of that as well.
-
-* `sudo nano /etc/supervisor/conf.d/mjpg-streamer.conf`
+* `sudo apt install python3-pip`
+* `sudo -H pip3 install supervisor`
+* `sudo su -`
+* `echo_supervisord_conf > /etc/supervisord.conf`
+* `exit`
+* `sudo nano /etc/supervisord.conf`
 ```
 [program:mjpg-streamer]
 command = mjpg_streamer -i "/usr/local/lib/mjpg-streamer/input_uvc.so -n -f 5 -r 1280x720" -o "/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/www"
@@ -150,10 +134,21 @@ autorestart = true
 stdout_logfile = /var/log/supervisor/mjpg-streamer.log  
 stderr_logfile = /var/log/supervisor/mjpg-streamer.log  
 environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32 (or lib64 for 64 bit)
+
+[program:videoloop]
+command = python3 videoloop.py /path/to/your/config.ini
+directory = /home/<username>/motiondetector/codeferm
+user = <username>
+startsecs = 0
+autostart = true  
+autorestart = true  
+stdout_logfile = /var/log/supervisor/videoloop.log  
+stderr_logfile = /var/log/supervisor/videoloop_err.log
+environment = PYTHONPATH=/home/<username>/motiondetector
 ```
-   
-* `sudo supervisorctl update`
-* `tail /var/log/supervisor/mjpg-streamer.log`
+
+* `supervisord`
+* Check logs in /tmp
 
 ### Camera health check
 
