@@ -148,7 +148,32 @@ environment = PYTHONPATH=/home/<username>/motiondetector
 ```
 
 * `supervisord`
-* Check logs in /tmp
+* Check logs in /tmp and fix any errors
+* `supervisorctl shutdown`
+* `sudo nano /etc/systemd/system/supervisord.service`
+```
+[Unit]
+Description=Supervisor daemon
+Documentation=http://supervisord.org
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/supervisord -n -c /etc/supervisord.conf
+ExecStop=/usr/local/bin/supervisorctl $OPTIONS shutdown
+ExecReload=/usr/local/bin/supervisorctl $OPTIONS reload
+KillMode=process
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target
+Alias=supervisord.service
+```
+
+* `sudo systemctl start supervisord`
+* Check logs in /tmp and fix any errors
+* `sudo systemctl stop supervisord`
+* `sudo systemctl enable supervisord`
 
 ### Camera health check
 
