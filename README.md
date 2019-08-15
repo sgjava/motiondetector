@@ -131,19 +131,18 @@ user = <username>
 startsecs = 0
 autostart = true  
 autorestart = true  
-stdout_logfile = /var/log/supervisor/mjpg-streamer.log  
-stderr_logfile = /var/log/supervisor/mjpg-streamer.log  
-environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32 (or lib64 for 64 bit)
+stdout_logfile = /tmp/mjpg-streamer.log  
+stderr_logfile = /tmp/mjpg-streamer_err.log  
+environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib64
 
 [program:videoloop]
-command = python3 videoloop.py /path/to/your/config.ini
+command = python videoloop.py /home/<username>/camera.ini
 directory = /home/<username>/motiondetector/codeferm
 user = <username>
-startsecs = 0
 autostart = true  
 autorestart = true  
-stdout_logfile = /var/log/supervisor/videoloop.log  
-stderr_logfile = /var/log/supervisor/videoloop_err.log
+stdout_logfile = /tmp/videoloop.log  
+stderr_logfile = /tmp/videoloop_err.log
 environment = PYTHONPATH=/home/<username>/motiondetector
 ```
 
