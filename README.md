@@ -133,7 +133,7 @@ autostart = true
 autorestart = true  
 stdout_logfile = /tmp/mjpg-streamer.log  
 stderr_logfile = /tmp/mjpg-streamer_err.log  
-environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib64
+environment = LD_LIBRARY_PATH=/opt/libjpeg-turbo/lib32 (or lib64)
 
 [program:videoloop]
 command = python videoloop.py /home/<username>/camera.ini
