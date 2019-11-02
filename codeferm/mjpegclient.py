@@ -94,15 +94,13 @@ class mjpegclient(framebase.framebase):
         while len(self.line) > 0 and self.line.strip() != "" and length == 0:
             parts = self.line.split(b":")
             if len(parts) > 1 and parts[0].lower().count(b"content-length") > 0:
-                # Toss \r\n
-                self.socketFile.readline()
                 # Grab chunk length
                 length = int(parts[1].strip())
-            # Skip lines before image data
-            i = self.skipLines
-            while i > 0:
-                self.line = self.socketFile.readline()
-                i -= 1                
+                # Skip lines before image data
+                i = self.skipLines
+                while i > 0:
+                    self.line = self.socketFile.readline()
+                    i -= 1                
             else:
                 self.line = self.socketFile.readline()
         return length
