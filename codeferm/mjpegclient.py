@@ -18,9 +18,7 @@ class mjpegclient(framebase.framebase):
 
     """
     
-    def __init__(self, url, timeout, extraln):
-        # Set to true if using mjpg_streamer
-        self.extraln = extraln
+    def __init__(self, url, timeout):
         """Connect to stream"""
         # Set socket timeout
         socket.setdefaulttimeout(timeout)        
@@ -71,6 +69,14 @@ class mjpegclient(framebase.framebase):
                     content_type = parts[1].strip()
                     self.boundary = content_type.split(b";")[1].split(b"=")[1]
             self.line = self.socketFile.readline()
+        # See how many lines need to be skipped after 'content-length'
+        while len(self.line) > 0 and self.line.strip().lower().find(b"content-length") < 0:
+            self.line = self.socketFile.readline()
+        # Find start of image
+        self.skipLines = -1
+        while len(self.line) > 0 and self.line.strip().lower().find(bytes.fromhex('ffd8')) != 0:
+            self.line = self.socketFile.readline()
+            self.skipLines += 1
         # Set basic params
         frame = self.getFrame()
         image = self.decodeFrame(frame)
@@ -92,9 +98,11 @@ class mjpegclient(framebase.framebase):
                 self.socketFile.readline()
                 # Grab chunk length
                 length = int(parts[1].strip())
-                # mjpg_streamer has an extra readline for some reason
-                if self.extraln:
-                    self.line = self.socketFile.readline()
+            # Skip lines before image data
+            i = self.skipLines
+            while i > 0:
+                self.line = self.socketFile.readline()
+                i -= 1                
             else:
                 self.line = self.socketFile.readline()
         return length
