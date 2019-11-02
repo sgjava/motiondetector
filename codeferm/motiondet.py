@@ -41,7 +41,7 @@ class motiondet(detectbase.detectbase):
         # The bright areas of the image (the background, apparently), get thinner, whereas the dark zones bigger
         image = cv2.erode(image, None, iterations=self.appConfig.motion['erodeAmount']);
         # Find contours
-        _ , contours, _  = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _  = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2:]
         # Add objects with motion
         movementLocations = []
         for contour in contours:
