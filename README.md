@@ -74,7 +74,7 @@ Solution: Sample only some frames. Motion detection using the moving average alg
 
 Solution: Analyze only motion ROI (regions of interest). By analyzing only ROI you can cut down processing time tremendously. For instance, if only 10% of the frame has motion then the OpenCV function should run about 900% faster! This may not work where there's a large change frame after frame. Luckily this will not happen for most security type scenarios. If a region is too small for the detector it is not processed thus speeding things up even more.
 
-Solution: Used hardware encoding and decoding when available. The Odroid XU4 for instance has hardware H.264 acceleration enabled by default. You can use the h264_v4l2m2m codec for hardware encoding and decoding. 
+Solution: Use hardware encoding and decoding when available. The Odroid XU4 for instance has hardware H.264 acceleration enabled by default. You can use the h264_v4l2m2m codec for hardware encoding and decoding. 
 
 #### Run Motion Detector
 The default [test.ini](https://github.com/sgjava/motiondetector/blob/master/config/test.ini) is configured to detect pedestrians from a local video file in the project. Try this first and make sure it works properly.
