@@ -1,7 +1,7 @@
 ![Title](images/title.png)
 
 Motion Detector takes input from video sources such as network cameras, web cams, files, etc. and makes intelligent decisions based on analyzing frames. Motion Detector uses a plugin based event driven architecture that allows you to easily extend functionality. It is deployed as an intelligent security system, but can be configured for your particular scenario. Reasons to use Motion Detector:
-* You have been disappointed with over priced proprietary cameras which require subscriptions to store your data. Build a [low end camera](https://bbs.nextthing.co/t/worlds-cheapest-smart-camera/16619) for 900% less than a [Nest Cam IQ](https://www.amazon.com/gp/customer-reviews/R3KW3CUJU03AB6).
+* You have been disappointed with over priced proprietary cameras which require subscriptions to store your data.
 * You have been disappointed with other surveillance software being Windows only (iSpy), woefully outdated (motion) or requiring a special OS image (KERBEROS.IO).
 * You want to use advanced Computer Vision and Machine Learning algorithms.
 * You want a secure camera [New IoT malware targets 100,000 IP cameras via known flaw](http://www.csoonline.com/article/3195825/security/new-iot-malware-targets-100000-ip-cameras-via-known-flaw.html) that does not rely on crappy proprietary firmware.
@@ -22,12 +22,16 @@ Using the pre-trained Haar Cascade method works better when objects are smaller:
 It's important to use the right detectors and configuration to achieve the desired results.
 
 ### Features
-* Motion Detector has been tested on SBCs such as Raspberry Pi, NanoPi M1, CHIP, ODROID C1/C2/XU4, Pine A64, etc. to create compact smart cameras. That means you can run Motion Detector on a single core $9 [CHIP](https://github.com/sgjava/opencv-chip) SBC and still use pedestrian detection without any hardware acceleration.
+![HOG](images/camera.jpg)
+
+DIY compact cameras are easy to build and install. This puts you in control of resolution, features, processing power, etc.
+* Motion Detector has been tested on SBCs such as Raspberry Pi, NanoPi M1, CHIP, ODROID C1/C2/XU4, Pine A64, etc. to create compact smart cameras.
 * Threading and subprocess based architecture allows consistent FPS while processing frames, writing video files, moving files to remote location, etc. all concurrently.
 * Run multiple copies on a central server for IP based "dumb" cameras.
 * Supports several types of video inputs including USB and IP (wired/wireless) cameras, video files, etc.
 * Fault tolerant architecture ensures buggy camera firmware or poor network connectivity will not derail video processing.
 * High performance frame capture plugins including Python socket based MJPEG decoder.
+* High performance hardware video encoding if your SBC supports it. 
 * Threshold based motion detection, ignore mask, multiple object marking and video recording.
 * Pedestrian and human feature detection with the ability to train your own detector.
 * Add your own plugins.
@@ -68,6 +72,8 @@ Solution: Resize image before any processing. Check out [Pedestrian Detection Op
 Solution: Sample only some frames. Motion detection using the moving average algorithm works best at around 3 or 4 FPS. This works to your advantage since that is an ideal time to do other types of detection such as for pedestrians. This also works out well as your camera FPS goes higher. That means ~3 FPS are processed even at 30 FPS. You still have to consider video recording overhead since that's still 30 FPS.
 
 Solution: Analyze only motion ROI (regions of interest). By analyzing only ROI you can cut down processing time tremendously. For instance, if only 10% of the frame has motion then the OpenCV function should run about 900% faster! This may not work where there's a large change frame after frame. Luckily this will not happen for most security type scenarios. If a region is too small for the detector it is not processed thus speeding things up even more.
+
+Solution: Used hardware encoding and decoding when available. The Odroid XU4 for instance has hardware H.264 acceleration enabled by default. You can use the h264_v4l2m2m codec for hardware encoding and decoding. 
 
 #### Run Motion Detector
 The default [test.ini](https://github.com/sgjava/motiondetector/blob/master/config/test.ini) is configured to detect pedestrians from a local video file in the project. Try this first and make sure it works properly.
