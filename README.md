@@ -31,7 +31,7 @@ DIY compact cameras are easy to build and install. This puts you in control of r
 * Supports several types of video inputs including USB and IP (wired/wireless) cameras, video files, etc.
 * Fault tolerant architecture ensures buggy camera firmware or poor network connectivity will not derail video processing.
 * High performance frame capture plugins including Python socket based MJPEG decoder.
-* High performance hardware video encoding if your SBC supports it. 
+* High performance hardware video encoding and decoding if your SBC supports it. 
 * Threshold based motion detection, ignore mask, multiple object marking and video recording.
 * Pedestrian and human feature detection with the ability to train your own detector.
 * Add your own plugins.
