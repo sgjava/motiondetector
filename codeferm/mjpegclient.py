@@ -11,6 +11,7 @@ All rights reserved.
 import socket, base64, numpy, cv2, framebase
 from urllib.parse import urlparse
 
+
 class mjpegclient(framebase.framebase):
     """MJPEG frame grabber class.
     

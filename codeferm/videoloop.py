@@ -22,7 +22,7 @@ class videoloop(observer.observer, observable.observable):
 
     def __init__(self, fileName):
         # Get app configuration
-        self.appConfig = config.config(fileName)        
+        self.appConfig = config.config(fileName)
         # Set up logger
         self.logger = logging.getLogger("videoloop")
         self.logger.setLevel(self.appConfig.logging['level'])
@@ -43,7 +43,6 @@ class videoloop(observer.observer, observable.observable):
             self.framePluginInstance.setProperties(self.appConfig.camera['videoCaptureProperties'])
         else:
             self.framePluginInstance = self.getPlugin(moduleName=self.appConfig.camera['framePlugin'], url=self.appConfig.camera['url'], timeout=self.appConfig.camera['socketTimeout'])
-        self.videoWriter = None
         # Frame buffer
         self.frameBuf = []
         # History buffer to capture just before motion
@@ -113,7 +112,7 @@ class videoloop(observer.observer, observable.observable):
             try:
                 if len(self.writeBuf) > 0:
                     # Write first image in write buffer (the oldest)
-                    self.videoWriter.write(self.writeBuf[0][0])
+                    self.writerPluginInstance.write(self.writeBuf[0][0])
                     self.writeBuf.pop(0)
                     self.recFrameNum += 1
                 else:
@@ -127,16 +126,16 @@ class videoloop(observer.observer, observable.observable):
         # Write off write buffer
         self.logger.info("Writing %d frames of write buffer" % len(self.writeBuf))
         for f in self.writeBuf[1:]:
-            self.videoWriter.write(f[0])
+            self.writerPluginInstance.write(f[0])
             self.recFrameNum += 1
         # Empty write buffer
         self.writeBuf = []
         # Write off write buffer
         self.logger.info("Writing %d frames of history buffer" % len(self.historyBuf))
         for f in self.historyBuf[1:]:
-            self.videoWriter.write(f[0])
+            self.writerPluginInstance.write(f[0])
             self.recFrameNum += 1
-        self.videoWriter.release()
+        self.writerPluginInstance.close()
         # Write off history image
         if self.appConfig.motion['historyImage']:
             # Save history image ready for ignore mask editing
@@ -171,7 +170,8 @@ class videoloop(observer.observer, observable.observable):
             # 1/4 of FPS sleep
             time.sleep(1.0 / (self.fps * 4))        
         self.videoFileName = self.makeFileName(timestamp, "motion")
-        self.videoWriter = cv2.VideoWriter(self.videoFileName, cv2.VideoWriter_fourcc(self.appConfig.camera['fourcc'][0], self.appConfig.camera['fourcc'][1], self.appConfig.camera['fourcc'][2], self.appConfig.camera['fourcc'][3]), self.fps, (self.framePluginInstance.frameWidth, self.framePluginInstance.frameHeight), True)
+        self.logger.info("Loading video writer plugin: %s" % self.appConfig.camera['writerPlugin'])
+        self.writerPluginInstance = self.getPlugin(moduleName=self.appConfig.camera['writerPlugin'], fileName=self.videoFileName, vcodec=self.appConfig.camera['vcodec'], fps=self.fps, frameWidth=self.framePluginInstance.frameWidth, frameHeight=self.framePluginInstance.frameHeight)
         if self.appConfig.motion['historyImage']:
             # Create black history image
             self.historyImg = numpy.zeros((self.motion.frameResizeHeight, self.motion.frameResizeWidth), numpy.uint8)

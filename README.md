@@ -40,7 +40,8 @@ It's important to use the right detectors and configuration to achieve the desir
 * [Install OpenCV](https://github.com/sgjava/install-opencv) or some other method to install latest OpenCV
 
 ### Download project and test
-* `sudo apt install git-core`
+* `sudo apt install git-core python3-pip`
+* `sudo -H pip3 install ffmpeg-python`
 * `cd ~/`
 * `git clone --depth 1 https://github.com/sgjava/motiondetector.git`
 * `cd ~/motiondetector/codeferm`
@@ -117,7 +118,6 @@ If you wish to use the SCP plugin then you should generate ssh keypair, so you d
 
 ### Configure Supervisor
 To make Motion Detector more resilient it's wise to run it with a process control system like [Supervisor](http://supervisord.org). Motion Detector currently fails fast if it gets a bad frame or socket timeout (as long as you use a reasonable socket timeout value in the configuration). Supervisor will automatically restart videoloop.py after failure.
-* `sudo apt install python3-pip`
 * `sudo -H pip3 install supervisor`
 * `sudo su -`
 * `echo_supervisord_conf > /etc/supervisord.conf`
