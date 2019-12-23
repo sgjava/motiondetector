@@ -44,7 +44,7 @@ DIY compact cameras are easy to build and install. This puts you in control of r
 * [Install OpenCV](https://github.com/sgjava/install-opencv) or some other method to install latest OpenCV
 
 ### Download project and test
-* `sudo apt install git-core python3-pip`
+* `sudo apt install git python3-pip`
 * `sudo -H pip3 install ffmpeg-python`
 * `cd ~/`
 * `git clone --depth 1 https://github.com/sgjava/motiondetector.git`
