@@ -43,3 +43,4 @@ class ffmpegwriter(writerbase.writerbase):
         """Clean up resources"""
         self.process.stdin.close()
         self.process.wait()
+        self.process.terminate()
