@@ -123,6 +123,11 @@ class videoloop(observer.observer, observable.observable):
                 # Add timestamp to errors
                 sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))
                 traceback.print_exc(file=sys.stderr)
+        # Write off write buffer
+        self.logger.info("Writing %d frames of write buffer" % len(self.writeBuf))
+        for f in self.writeBuf[1:]:
+            self.writerPluginInstance.write(f[0])
+            self.recFrameNum += 1                
         # Empty write buffer
         self.writeBuf = []
         self.writerPluginInstance.close()
