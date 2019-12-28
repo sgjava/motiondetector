@@ -128,8 +128,6 @@ class videoloop(observer.observer, observable.observable):
         for f in self.writeBuf[1:]:
             self.writerPluginInstance.write(f[0])
             self.recFrameNum += 1
-            # 1/4 of FPS sleep
-            time.sleep(1.0 / (self.fps * 4))
         # Empty write buffer
         self.writeBuf = []
         # Write off history buffer
@@ -137,8 +135,6 @@ class videoloop(observer.observer, observable.observable):
         for f in self.historyBuf[1:]:
             self.writerPluginInstance.write(f[0])
             self.recFrameNum += 1        
-            # 1/4 of FPS sleep
-            time.sleep(1.0 / (self.fps * 4))
         self.writerPluginInstance.close()
         # Write off history image
         if self.appConfig.motion['historyImage']:

@@ -29,7 +29,7 @@ class ffmpegwriter(writerbase.writerbase):
             .overwrite_output()
             .compile()
         )
-        return subprocess.Popen(args, stdin=subprocess.PIPE)        
+        return subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        
     
     def write(self, image):
         """ Convert raw image format to something ffmpeg understands """
