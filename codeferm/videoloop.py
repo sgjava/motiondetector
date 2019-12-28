@@ -165,10 +165,6 @@ class videoloop(observer.observer, observable.observable):
 
     def recordingStart(self, timestamp, motionPercent):
         "Start recording video"
-        # Wait for current recording to finish
-        while(self.recording):
-            # 1/4 of FPS sleep
-            time.sleep(1.0 / (self.fps * 4))        
         self.videoFileName = self.makeFileName(timestamp, "motion")
         self.logger.info("Loading video writer plugin: %s" % self.appConfig.camera['writerPlugin'])
         self.writerPluginInstance = self.getPlugin(moduleName=self.appConfig.camera['writerPlugin'], fileName=self.videoFileName, vcodec=self.appConfig.camera['vcodec'], fps=self.fps, frameWidth=self.framePluginInstance.frameWidth, frameHeight=self.framePluginInstance.frameHeight)
@@ -182,7 +178,7 @@ class videoloop(observer.observer, observable.observable):
        
     def observeEvent(self, **kwargs):
         "Handle events"
-        if kwargs["event"] == self.appConfig.motionStart:
+        if kwargs["event"] == self.appConfig.motionStart and not self.recording:
             self.logger.debug("Motion start: %4.2f%%" % kwargs["motionPercent"])
             # Kick off recordingStart thread
             recordingStartThread = threading.Thread(target=self.recordingStart, args=(kwargs["timestamp"], kwargs["motionPercent"],))
