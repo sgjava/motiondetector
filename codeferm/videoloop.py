@@ -186,6 +186,7 @@ class videoloop(observer.observer, observable.observable):
                 recordingStartThread.start()
             else:
                 self.logger.error("Cannot start new video while previous video recording")
+                self.motion.motionDetected = False
         elif kwargs["event"] == self.appConfig.motionStop:
             self.logger.debug("Motion stop: %4.2f%%" % kwargs["motionPercent"])
             # Exit writeFrames loop

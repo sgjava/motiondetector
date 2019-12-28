@@ -19,17 +19,15 @@ class ffmpegwriter(writerbase.writerbase):
     """
     
     def __init__(self, fileName, vcodec, fps, frameWidth, frameHeight):
-        self.process = self.startProcess(fileName, vcodec, fps, frameWidth, frameHeight)
-        
-    def startProcess(self, fileName, vcodec, fps, frameWidth, frameHeight):
-        args = (
+        self.process = (
             ffmpeg
-            .input('pipe:', framerate='{}'.format(fps), format='rawvideo', pix_fmt='bgr24', s='{}x{}'.format(frameWidth, frameHeight), loglevel='error')
+            .input('pipe:', framerate='{}'.format(fps), format='rawvideo', pix_fmt='bgr24', s='{}x{}'.format(frameWidth, frameHeight))
             .output(fileName, vcodec=vcodec, pix_fmt='nv21', acodec='n', **{'b:v': 2000000})
+            .global_args('-hide_banner', '-nostats', '-loglevel', 'panic')            
             .overwrite_output()
-            .compile()
+            .run_async(pipe_stdin=True)
         )
-        return subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        
+       
     
     def write(self, image):
         """ Convert raw image format to something ffmpeg understands """
@@ -42,3 +40,4 @@ class ffmpegwriter(writerbase.writerbase):
     def close(self):
         """Clean up resources"""
         self.process.stdin.close()
+        self.process.wait()
