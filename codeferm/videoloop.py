@@ -178,11 +178,14 @@ class videoloop(observer.observer, observable.observable):
        
     def observeEvent(self, **kwargs):
         "Handle events"
-        if kwargs["event"] == self.appConfig.motionStart and not self.recording:
-            self.logger.debug("Motion start: %4.2f%%" % kwargs["motionPercent"])
-            # Kick off recordingStart thread
-            recordingStartThread = threading.Thread(target=self.recordingStart, args=(kwargs["timestamp"], kwargs["motionPercent"],))
-            recordingStartThread.start()
+        if kwargs["event"] == self.appConfig.motionStart:
+            if not self.recording:
+                self.logger.debug("Motion start: %4.2f%%" % kwargs["motionPercent"])
+                # Kick off recordingStart thread
+                recordingStartThread = threading.Thread(target=self.recordingStart, args=(kwargs["timestamp"], kwargs["motionPercent"],))
+                recordingStartThread.start()
+            else:
+                self.logger.error("Cannot start new video while previous video recording")
         elif kwargs["event"] == self.appConfig.motionStop:
             self.logger.debug("Motion stop: %4.2f%%" % kwargs["motionPercent"])
             # Exit writeFrames loop
