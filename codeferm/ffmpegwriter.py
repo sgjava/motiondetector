@@ -25,7 +25,7 @@ class ffmpegwriter(writerbase.writerbase):
         args = (
             ffmpeg
             .input('pipe:', framerate='{}'.format(fps), format='rawvideo', pix_fmt='bgr24', s='{}x{}'.format(frameWidth, frameHeight), loglevel='error')
-            .output(fileName, vcodec=vcodec, pix_fmt='nv21', **{'b:v': 2000000})
+            .output(fileName, vcodec=vcodec, pix_fmt='nv21', acodec='n', **{'b:v': 2000000})
             .overwrite_output()
             .compile()
         )
